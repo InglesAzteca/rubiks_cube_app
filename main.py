@@ -285,7 +285,7 @@ class RubiksApp(customtkinter.CTk):
         print(self.oll_check_var.get())
 
     def color_cross_tiles(self):
-        # fix this
+        # fix this shit
         self.cube_coloring_reference[1][2][1] = 'o'
         self.cube_coloring_reference[2][2][1] = 'y'
         self.cube_coloring_reference[3][2][1] = 'r'
