@@ -574,50 +574,101 @@ class RubiksApp(customtkinter.CTk):
         for palette_button in self.color_palette_buttons.values():
             palette_button.configure(state='normal', fg_color=palette_button.fg_color[0]) #fg_color is a tuple
 
-    def cross_checkbox_event(self):
-        print(self.cross_check_var.get())
-        # if self.cross_check_var.get() == 1:
-        #     self.cube_coloring_reference[]
+    def check_box_tile_coloring(self, check_box, add_remove):
+        '''Colors or removes color from the tiles in a section of the cube.'''
 
-    def f2l_checkbox_event(self):
-        print(self.f2l_check_var.get())
+        coloring_reference_copy = self.create_cube_copy(self.coloring_reference)
 
-    def oll_checkbox_event(self):
-        print(self.oll_check_var.get())
+        # the cross only consists of the buttom edges of the cube.
+        if check_box == 'cross':
+            coloring_reference_copy = self.color_edge_tiles('buttom',
+                                                            coloring_reference_copy,
+                                                            add_remove)
 
-    def color_cross_tiles(self):
-        # fix this
-        self.cube_coloring_reference[1][2][1] = 'o'
-        self.cube_coloring_reference[2][2][1] = 'y'
-        self.cube_coloring_reference[3][2][1] = 'r'
-        self.cube_coloring_reference[4][2][1] = 'w'
-        self.cube_coloring_reference[5][0][1] = 'b'
-        self.cube_coloring_reference[5][1][2] = 'b'
-        self.cube_coloring_reference[5][2][1] = 'b'
-        self.cube_coloring_reference[5][1][0] = 'b'
+        # f2l consists of the middle edges and the buttom corners.
+        elif check_box == 'f2l':
+            coloring_reference_copy = self.color_edge_tiles('middle',
+                                                            coloring_reference_copy,
+                                                            add_remove)
+            coloring_reference_copy = self.color_corner_tiles('buttom',
+                                                              coloring_reference_copy,
+                                                              add_remove)
 
-    def cube_rotation(self, cube_state, X_Y_Z, amount, prime=1):
-        '''Rotates the cube. prime = 1 or -1 if -2 the prime rotation is performed.'''
+        # oll consists of the upper face only
+        elif check_box == 'oll':
+            coloring_reference_copy = self.color_oll_tiles(
+                coloring_reference_copy, add_remove)
 
-        # rotation cordinates
-        X = [[0, 2], [2, 5], [5, 4]]
-        Y = [[1, 2], [2, 3], [3, 4]]
-        Z = [[0, 1], [1, 5], [5, 3]]
+        self.color_tiles(coloring_reference_copy)
 
-        if X_Y_Z == 'X':
-            rotation = X
-        elif X_Y_Z == 'Y':
-            rotation = Y
-        elif X_Y_Z == 'Z':
-            rotation = Z
+    def color_edge_tiles(self, section, coloring_reference_copy, add_remove):
+        '''Colors or removes color from the edge tiles of a certain section
+        (top/middle/buttom).'''
 
-        # creates a slice, inverts list
-        for n in range(amount):
-            for r in rotation[::prime]:
-                r = r[::prime]
-                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], cube_state[r[0]]
+        # the edge consists of 2 tiles
+        for tile_1, tile_2 in self.edge_indices[section]:
+            # separates the tiles into their indecies (face index, row index, column index)
+            face_1, row_1, column_1 = tile_1
+            face_2, row_2, column_2 = tile_2
 
-        return cube_state
+            # sets the color to the color of the centre tile
+            if add_remove == 'add':
+                color_1 = coloring_reference_copy[face_1][1][1]
+                color_2 = coloring_reference_copy[face_2][1][1]
+
+            # sets the color to a defualt value
+            elif add_remove == 'remove':
+                color_1, color_2 = 'd', 'd'
+
+            coloring_reference_copy[face_1][row_1][column_1] = color_1
+            coloring_reference_copy[face_2][row_2][column_2] = color_2
+
+        return coloring_reference_copy
+
+    def color_corner_tiles(self, section, coloring_reference_copy, add_remove):
+        '''Colors or removes color from the corner tiles of a certain section
+        (top/buttom).'''
+
+        # a corner consists of 3 tiles.
+        for tile_1, tile_2, tile_3 in self.corner_indices[section]:
+            # separates each tile into their indices (face index, row index, column index)
+            face_1, row_1, column_1 = tile_1
+            face_2, row_2, column_2 = tile_2
+            face_3, row_3, column_3 = tile_3
+
+            # sets the color to the color of the centre tile
+            if add_remove == 'add':
+                color_1 = coloring_reference_copy[face_1][1][1]
+                color_2 = coloring_reference_copy[face_2][1][1]
+                color_3 = coloring_reference_copy[face_3][1][1]
+
+            # sets the color to a defualt value
+            elif add_remove == 'remove':
+                color_1, color_2, color_3 = 'd', 'd', 'd'
+
+            coloring_reference_copy[face_1][row_1][column_1] = color_1
+            coloring_reference_copy[face_2][row_2][column_2] = color_2
+            coloring_reference_copy[face_3][row_3][column_3] = color_3
+
+        return coloring_reference_copy
+
+    def color_oll_tiles(self, coloring_reference_copy, add_remove):
+        '''Colors or removes color from the tiles on the upper face of the cube.'''
+
+        # sets color to the centre tile of the upper face.
+        if add_remove == 'add':
+            color = coloring_reference_copy[0][1][1]
+        # sets color to a defualt value.
+        elif add_remove == 'remove':
+            color = 'd'
+
+        for row in range(3):
+            for column in range(3):
+                # if it is not the centre tile (row 1, column 1) we color it.
+                if row != 1 or column != 1:
+                    coloring_reference_copy[0][row][column] = color
+
+        return coloring_reference_copy
 
     def on_closing(self, event=0):
         self.destroy()
