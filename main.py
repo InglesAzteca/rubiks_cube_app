@@ -314,8 +314,7 @@ class RubiksApp(customtkinter.CTk):
         for n in range(amount):
             for r in rotation[::prime]:
                 r = r[::prime]
-                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], \
-                                                     cube_state[r[0]]
+                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], cube_state[r[0]]
 
         return cube_state
 
