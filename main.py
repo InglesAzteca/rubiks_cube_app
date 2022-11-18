@@ -258,6 +258,10 @@ class RubiksApp(customtkinter.CTk):
 
             column += 1
 
+    def color_palette_button_event(self, color):
+        '''Sets the value of the attribute selected color to color.'''
+        self.selected_color = color
+
     def create_cube_face_frames(self):
         '''Creates the layout of the cube faces using frames.'''
         cube_layout = [
@@ -265,8 +269,8 @@ class RubiksApp(customtkinter.CTk):
             ['frame'] * 4,
             ['space', 'frame', 'space', 'space']
         ]
-        cube_face_keys = list(
-            self.cube_face_frames.keys())  # creates a list of the keys in cube_face_frames
+        face_keys = list(
+            self.face_frames.keys())  # creates a list of the keys in cube_face_frames
         face_index = 0
 
         for row in range(3):
@@ -275,14 +279,15 @@ class RubiksApp(customtkinter.CTk):
                     face = customtkinter.CTkFrame(master=self.cube_frame)
                     face.grid(row=row, column=column)
                     # adds the frame instance to the dictionary using the cube_face_keys list and the face_index
-                    self.cube_face_frames[cube_face_keys[face_index]] = face
+                    self.face_frames[face_keys[face_index]] = face
                     face_index += 1
 
-    def add_tiles_to_faces(self):
+    def add_tiles_to_face_frames(self):
+        '''Adds the tiles/buttons to each face frame.'''
         size = 60
         face_index = 0
 
-        for face in self.cube_face_frames.values():
+        for face in self.face_frames.values():  # loops through the instances of the face frames
             for row in range(3):
                 for column in range(3):
                     tile = customtkinter.CTkButton(master=face,
@@ -292,11 +297,12 @@ class RubiksApp(customtkinter.CTk):
                                                    command=lambda
                                                        face_index=face_index,
                                                        row=row,
-                                                       column=column: self.color_tile(
+                                                       column=column: self.tile_button_event(
                                                        face_index, row, column))
                     tile.grid(row=row, column=column, padx=3, pady=3)
 
-                    self.cube[face_index][row][column] = tile
+                    self.cube_buttons[face_index][row][
+                        column] = tile  # Adds the button instance to the list representing the cube
 
             face_index += 1
 
