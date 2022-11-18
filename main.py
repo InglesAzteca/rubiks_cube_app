@@ -27,26 +27,35 @@ class RubiksApp(customtkinter.CTk):
         {'color_name': 'default', 'color_reference': 'd',
          'main_color': '#1f6aa5', 'hover_color': '#1f6aa5'}
     ]
-    color_palette_buttons = {
-        'red_button': None,
-        'blue_button': None,
-        'yellow_button': None,
-        'orange_button': None,
-        'green_button': None,
-        'white_button': None
-    }
-    selected_color = None
-
-    cube_face_frames = {'white_face': None,
+    face_frames = {'white_face': None,
                         'orange_face': None,
                         'green_face': None,
                         'red_face': None,
                         'blue_face': None,
                         'yellow_face': None}
 
-    cube = None
+    color_palette_buttons = {
+                            'red_button': None,
+                            'blue_button': None,
+                            'yellow_button': None,
+                            'orange_button': None,
+                            'green_button': None,
+                            'white_button': None
+                            }
+    check_box_details = [
+                        {'name': 'cross', 'check_box': None, 'text': 'Cross', 'variable': None, 'required_states': [[0, 0, 0], [1, 0, 0]]},
+                        {'name': 'f2l', 'check_box': None, 'text': 'F2L  ', 'variable': None, 'required_states': [[1, 0, 0], [1, 1, 0]]},
+                        {'name': 'oll', 'check_box': None, 'text': 'OLL  ', 'variable': None, 'required_states': [[1, 1, 0], [1, 1, 1]]}
+                        ]
+    edge_indices = {'top': None, 'middle': None, 'buttom': None}
 
-    cube_coloring_reference = None
+    corner_indices = {'top': None, 'buttom': None}
+
+    cube_buttons = None
+
+    coloring_reference = None
+
+    selected_color = None
 
     start_color = None
 
