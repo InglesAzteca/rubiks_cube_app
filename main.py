@@ -285,20 +285,22 @@ class RubiksApp(customtkinter.CTk):
 
     def tile_button_event(self, face_index, row_index, colum_index):
         """Colors an individual tiles according to the arguments passed in."""
+
         if self.selected_color != None:  # ensures a color has been selected.
             main_color = self.selected_color["main_color"]
             hover_color = self.selected_color["hover_color"]
 
-            self.coloring_reference[face_index][row_index][colum_index] = \
-            self.selected_color[
-                "color_reference"]  # adds the reference color to the cubes coloring reference
+            # adds the reference color to the cubes coloring reference
+            self.coloring_reference[face_index][row_index][colum_index] = self.selected_color["color_reference"]
+            # changes the tile/button color
             self.cube_buttons[face_index][row_index][colum_index].configure(
                 fg_color=main_color,
-                hover_color=hover_color)  # changes the tile/button color
+                hover_color=hover_color)
 
     def color_centre_tiles(self, start_color):
         """Colors the centre tile of each face relative to the rotation details."""
-        default_color_order = list('wogrby')  # sets a defual order of colors
+
+        default_color_order = list('wogrby')  # sets a default order of colors
         # contains rotation details for each color if they were to be the start color
         rotation_details = {'yellow': ('X', 0),
                             'white': ('X', 2),
@@ -312,32 +314,30 @@ class RubiksApp(customtkinter.CTk):
         for key in rotation_details.keys():
             if key == start_color:
                 # passes in the default color order and returns a list after the rotations have been performed
-                color_order = self.cube_rotation(default_color_order,
-                                                 *rotation_details[key])
+                color_order = self.cube_rotation(default_color_order, *rotation_details[key])
                 break
 
-        colors = self.order_colors(
-            color_order)  # returns a copy of the color details in order
+        colors = self.order_colors(color_order) # returns a copy of the color details in order
 
         for face_index in range(6):
             main_color = colors[face_index]["main_color"]
             hover_color = colors[face_index]["hover_color"]
             # adds the color reference to the centre of each face
-            coloring_reference_copy[face_index][1][1] = colors[face_index][
-                'color_reference']
-            # passes in the coloring reference copy then colors the tiles
+            coloring_reference_copy[face_index][1][1] = colors[face_index]['color_reference']
+
+        # passes in the coloring reference copy then colors the tiles
         self.color_tiles(coloring_reference_copy)
 
     def order_colors(self, order):
         """Returns a ordered copy of the color details."""
+
         color_list = self.color_details[:6]  # creates the copy
 
         for index in range(len(order)):
-            # Loops through color list until all the values in the list order, equal the coresponding color details
+            # loops through color list until all the values in the list order, equal the coresponding color details
             for color in color_list:
                 if order[index] == color['color_reference']:
-                    order[
-                        index] = color  # turns the color reference to the color details
+                    order[index] = color  # turns the color reference to the color details
                     color_list.remove(color)  # removes that color
         return order
 
@@ -345,23 +345,24 @@ class RubiksApp(customtkinter.CTk):
         """Uses a modified copy of the cube coloring reference list, colors the
         tiles and then updates the coloring reference to the values in the copy
         which is the current state."""
+
         for face in range(6):
             for row in range(3):
                 for column in range(3):
                     # colors a tile only if the value has been modified
-                    if copy_of_coloring_reference[face][row][column] != \
-                            self.coloring_reference[face][row][column]:
-                        color_reference = copy_of_coloring_reference[face][row][
-                            column]  # gets the color reference at specific position
-                        color = self.get_dictionary_details(self.color_details,
-                                                            color_reference)  # uses the refernce to get color details
+                    if copy_of_coloring_reference[face][row][column] != self.coloring_reference[face][row][column]:
+                        # gets the color reference at specific position
+                        color_reference = copy_of_coloring_reference[face][row][column]
+                        # uses the reference to get color details
+                        color = self.get_dictionary_details(self.color_details, color_reference)
 
                         main_color = color['main_color']
                         hover_color = color['hover_color']
 
+                        # updates the color
                         self.cube_buttons[face][row][column].configure(
                             fg_color=main_color,
-                            hover_color=hover_color)  # updates the color
+                            hover_color=hover_color)
 
         self.coloring_reference = copy_of_coloring_reference  # updates the coloring reference
 
@@ -372,7 +373,7 @@ class RubiksApp(customtkinter.CTk):
     def cube_rotation(self, cube_state, X_Y_Z, amount=1, prime=1):
         """Simulates a rotation of the cube."""
 
-        # rotation cordinates
+        # rotation coordinates
         X = [[0, 2], [2, 5], [5, 4]]
         Y = [[1, 2], [2, 3], [3, 4]]
         Z = [[0, 1], [1, 5], [5, 3]]
@@ -385,12 +386,10 @@ class RubiksApp(customtkinter.CTk):
             rotation = Z
 
         for number_of_rotations in range(amount):
-            # if prime equals -1 the values in the list are reversedc
+            # if prime equals -1 the values in the list are reversed
             for r in rotation[::prime]:
                 r = r[::prime]
-                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], \
-                                                     cube_state[r[
-                                                         0]]  # swaps the values in the cube
+                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], cube_state[r[0]]
 
         return cube_state
 
@@ -421,6 +420,7 @@ class RubiksApp(customtkinter.CTk):
     def create_check_boxes(self):
         """Creates check boxes using a list of dictionaries that contains the
         check box details."""
+
         row = 1  # we set the row to 1 becuase the frame that contains the check boxes already has one item
         for index in range(
                 len(self.check_box_details)):  # the number of loops depend on the length of the list
@@ -434,10 +434,7 @@ class RubiksApp(customtkinter.CTk):
                 state=tkinter.DISABLED,
                 command=lambda name=check_box['name'],
                                variable=check_box['variable'],
-                               required_states=check_box[
-                                   'required_states']: self.checkbox_event(name,
-                                                                           variable,
-                                                                           required_states),
+                               required_states=check_box['required_states']: self.checkbox_event(name, variable, required_states),
                 variable=check_box['variable'],
                 onvalue=1,
                 offvalue=0)
@@ -450,14 +447,12 @@ class RubiksApp(customtkinter.CTk):
         after the for loop has ended."""
 
         # returns a list of the check boxes variables.
-        check_box_variables = self.get_dictionary_details(
-            self.check_box_details, return_value='variable')
+        check_box_variables = self.get_dictionary_details(self.check_box_details, return_value='variable')
         # creates a list of binary values representing the current states
         current_states = [variable.get() for variable in check_box_variables]
 
         # returns the check box instances
-        check_boxes = self.get_dictionary_details(self.check_box_details,
-                                                  return_value='check_box')
+        check_boxes = self.get_dictionary_details(self.check_box_details, return_value='check_box')
 
         for index in range(len(current_states)):
             current, required = current_states[index], required_states[index]
@@ -476,8 +471,7 @@ class RubiksApp(customtkinter.CTk):
         to color or remove color from a section of the cube."""
 
         # retuns the check box's names that are used to identify what sections need to be colored.
-        check_box_names = self.get_dictionary_details(self.check_box_details,
-                                                      return_value='name')
+        check_box_names = self.get_dictionary_details(self.check_box_details, return_value='name')
 
         for index in range(len(check_box_states)):
             # if the check box state is 0/off color is removed from the tiles.
@@ -489,8 +483,9 @@ class RubiksApp(customtkinter.CTk):
                 self.check_box_tile_coloring(check_box_names[index], 'add')
 
     def get_dictionary_details(self, detail_dictionaries, reference_value=None, return_value=None):
-        """This function can be used to return specific details of a dictionary using a
-        reference value (actual value we have) and a return value (key of the value we want)."""
+        """This function can be used to return specific details of a dictionary
+        using a reference value (actual value we have) and a return value
+        (key of the value we want)."""
 
         # if a reference value is not passed in, a list of all the values in the
         # list of dictionaries with the key return value is returned.
@@ -499,12 +494,12 @@ class RubiksApp(customtkinter.CTk):
         else:
             for item in detail_dictionaries:
                 if reference_value in item.values():
-                    # if a return value is not passed in, the dictionary containing
-                    # the reference value is returned.
+                    # if a return value is not passed in, the dictionary
+                    # containing the reference value is returned.
                     if return_value == None:
                         return item
-                    # if both the reference value and the return value are passed
-                    # in the specific value in the dictionary is returned.
+                    # if both the reference value and the return value are
+                    # passed in the specific value in the dictionary is returned.
                     else:
                         return item[return_value]
 
@@ -523,7 +518,7 @@ class RubiksApp(customtkinter.CTk):
     def start_color_menu_callback(self, start_color):
         """This function is called when the start color has been selected."""
 
-        # enables the buttons if the start color hasn't been selected previously.
+        # enables the buttons if the start color hasn't been selected previously
         if self.start_color == None:
             self.enable_color_palette()
             self.enable_toggle_buttons()
@@ -548,6 +543,7 @@ class RubiksApp(customtkinter.CTk):
     def enable_color_palette(self):
         """Sets the state of each color palette button to normal/chlickable and
         sets the color to the main color."""
+
         for palette_button in self.color_palette_buttons.values():
             palette_button.configure(state='normal', fg_color=palette_button.fg_color[0]) #fg_color is a tuple
 
@@ -555,13 +551,11 @@ class RubiksApp(customtkinter.CTk):
         """Colors or removes color from the tiles in a section of the cube."""
 
         coloring_reference_copy = self.create_cube_copy(self.coloring_reference)
-
         # the cross only consists of the bottom edges of the cube.
         if check_box == 'cross':
             coloring_reference_copy = self.color_edge_tiles('bottom',
                                                             coloring_reference_copy,
                                                             add_remove)
-
         # f2l consists of the middle edges and the bottom corners.
         elif check_box == 'f2l':
             coloring_reference_copy = self.color_edge_tiles('middle',
@@ -573,8 +567,7 @@ class RubiksApp(customtkinter.CTk):
 
         # oll consists of the upper face only
         elif check_box == 'oll':
-            coloring_reference_copy = self.color_oll_tiles(
-                coloring_reference_copy, add_remove)
+            coloring_reference_copy = self.color_oll_tiles(coloring_reference_copy, add_remove)
 
         self.color_tiles(coloring_reference_copy)
 
@@ -593,7 +586,7 @@ class RubiksApp(customtkinter.CTk):
                 color_1 = coloring_reference_copy[face_1][1][1]
                 color_2 = coloring_reference_copy[face_2][1][1]
 
-            # sets the color to a defualt value
+            # sets the color to a default value
             elif add_remove == 'remove':
                 color_1, color_2 = 'd', 'd'
 
@@ -619,7 +612,7 @@ class RubiksApp(customtkinter.CTk):
                 color_2 = coloring_reference_copy[face_2][1][1]
                 color_3 = coloring_reference_copy[face_3][1][1]
 
-            # sets the color to a defualt value
+            # sets the color to a default value
             elif add_remove == 'remove':
                 color_1, color_2, color_3 = 'd', 'd', 'd'
 
@@ -635,7 +628,7 @@ class RubiksApp(customtkinter.CTk):
         # sets color to the centre tile of the upper face.
         if add_remove == 'add':
             color = coloring_reference_copy[0][1][1]
-        # sets color to a defualt value.
+        # sets color to a default value.
         elif add_remove == 'remove':
             color = 'd'
 
