@@ -364,15 +364,58 @@ class RubiksApp(customtkinter.CTk):
                     color_list.remove(color)  # removes that color
         return order
 
-    def get_color(self, color):
-        self.selected_color = color
+    def color_tiles(self, copy_of_coloring_reference):
+        '''Uses a modified copy of the cube coloring reference list, colors the
+        tiles and then updates the coloring reference to the values in the copy
+        which is the current state.'''
+        for face in range(6):
+            for row in range(3):
+                for column in range(3):
+                    # colors a tile only if the value has been modified
+                    if copy_of_coloring_reference[face][row][column] != \
+                            self.coloring_reference[face][row][column]:
+                        color_reference = copy_of_coloring_reference[face][row][
+                            column]  # gets the color reference at specific position
+                        color = self.get_dictionary_details(self.color_details,
+                                                            color_reference)  # uses the refernce to get color details
 
-    def color_tile(self, face_index, row_index, colum_index):
-        main_color = self.selected_color["main_color"]
-        hover_color = self.selected_color["hover_color"]
+                        main_color = color['main_color']
+                        hover_color = color['hover_color']
 
-        self.cube[face_index][row_index][colum_index].configure(
-            fg_color=main_color, hover_color=hover_color)
+                        self.cube_buttons[face][row][column].configure(
+                            fg_color=main_color,
+                            hover_color=hover_color)  # updates the color
+
+        self.coloring_reference = copy_of_coloring_reference  # updates the coloring reference
+
+    def get_centre_tile_colors(self):
+        '''Returns a list of all the centre tile color reference.'''
+        return [face[1][1] for face in self.coloring_reference]
+
+    def cube_rotation(self, cube_state, X_Y_Z, amount=1, prime=1):
+        '''Simulates a rotation of the cube.'''
+
+        # rotation cordinates
+        X = [[0, 2], [2, 5], [5, 4]]
+        Y = [[1, 2], [2, 3], [3, 4]]
+        Z = [[0, 1], [1, 5], [5, 3]]
+
+        if X_Y_Z == 'X':
+            rotation = X
+        elif X_Y_Z == 'Y':
+            rotation = Y
+        elif X_Y_Z == 'Z':
+            rotation = Z
+
+        for number_of_rotations in range(amount):
+            # if prime equals -1 the values in the list are reversedc
+            for r in rotation[::prime]:
+                r = r[::prime]
+                cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], \
+                                                     cube_state[r[
+                                                         0]]  # swaps the values in the cube
+
+        return cube_state
 
     def start_color_menu_callback(self, start_color):
         self.start_color = start_color.lower()
