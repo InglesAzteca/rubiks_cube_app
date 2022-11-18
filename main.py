@@ -417,6 +417,68 @@ class RubiksApp(customtkinter.CTk):
 
         return cube_state
 
+    def display_cube(self, cube_state):
+        '''Displays the cube's values line by line in a neat manner.'''
+
+        for stage in range(1, 4):  # 3 stages of displaying
+            if stage in (1, 3):
+                # set face index according to the stage
+                if stage == 1:
+                    face = 0
+                else:
+                    face = 5
+
+                for row in range(3):
+                    v1, v2, v3 = cube_state[face][row]
+                    print(f"{v1:>8} {v2} {v3}")
+            else:
+                print()
+                for row in range(3):
+                    row_display = ''
+                    for face in cube_state[1: 5]:
+                        v1, v2, v3 = face[row]
+                        row_display += f"{v1} {v2} {v3}  "
+                    print(row_display)
+                print()
+
+    def create_check_boxes(self):
+        '''Creates check boxes using a list of dictionaries that contains the
+        check box details.'''
+        row = 1  # we set the row to 1 becuase the frame that contains the check boxes already has one item
+        for index in range(
+                len(self.check_box_details)):  # the number of loops depend on the length of the list
+            check_box = self.check_box_details[index]
+
+            check_box['variable'] = tkinter.IntVar()  # add an integer variable
+            # add an check box instance
+            check_box['check_box'] = customtkinter.CTkCheckBox(
+                master=self.coloring_toggles_frame,
+                text=check_box['text'],
+                state=tkinter.DISABLED,
+                command=lambda name=check_box['name'],
+                               variable=check_box['variable'],
+                               required_states=check_box[
+                                   'required_states']: self.checkbox_event(name,
+                                                                           variable,
+                                                                           required_states),
+                variable=check_box['variable'],
+                onvalue=1,
+                offvalue=0)
+            check_box['check_box'].grid(row=row, column=0, padx=20, pady=10)
+            row += 1
+
+    def checkbox_event(self, checkbox_name, variable, required_states):
+        '''Calls a coloring function and a function that changes the check box
+        states, when any of the check boxes is clicked.'''
+
+        state = variable.get()  # returns 0 or 1 (represents the state: 0 = off, 1 = on)
+
+        # changes the check box states to their required state
+        specific_required_states = self.change_check_box_states(
+            required_states[state])
+        # colors sections on the cube using a list of states
+        self.color_tiles_according_to_check_box_states(specific_required_states)
+
     def start_color_menu_callback(self, start_color):
         self.start_color = start_color.lower()
         self.color_centre_tiles(self.start_color)
