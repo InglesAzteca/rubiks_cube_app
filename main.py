@@ -154,6 +154,83 @@ class RubiksApp(customtkinter.CTk):
             for key in dictionary.keys():
                 dictionary[key] = [[] for x in range(4)]
 
+    def create_edge_indices(self):
+        '''Creates the indices for each edge on the cube using modulus to create
+        a specific index sequence.'''
+
+        # top edge indices sequencies
+        # -----sequence 1------sequence 2-----
+        #       1 0 1           0 1 0
+        #       2 0 1           0 2 1
+        #       3 0 1           0 1 2
+        #       4 0 1           0 0 1
+
+        # middle edge indices sequencies
+        # -----sequence 3------sequence 4-----
+        #       1 1 0           4 1 2
+        #       1 1 2           2 1 0
+        #       2 1 2           3 1 0
+        #       3 1 2           4 1 0
+
+        # buttom edge indices sequencies
+        # -----sequence 6------sequence 6-----
+        #       1 2 1           5 1 0
+        #       2 2 1           5 0 1
+        #       3 2 1           5 1 2
+        #       4 2 1           5 2 1
+
+        for index in range(4):
+            self.edge_indices['top'][index].append(
+                [index + 1, 0, 1])  # creates sequence 1
+            self.edge_indices['top'][index].append(
+                [0, 5 % (index + 2), 5 % (index + 1)])  # creates sequence 2
+
+            self.edge_indices['middle'][index].append(
+                [(index - 1) % (index + 1) + 1, 1,
+                 2 % (index + 2)])  # creates sequence 3
+            self.edge_indices['middle'][index].append([4 - ((3 - index) % 3), 1,
+                                                       abs(2 % (
+                                                                   index + 2) - 2)])  # creates sequence 4
+
+            self.edge_indices['buttom'][index].append(
+                [index + 1, 2, 1])  # creates sequence 5
+            self.edge_indices['buttom'][index].append(
+                [5, abs(index - 1), 5 % (index + 1)])  # creates sequence 6
+
+    def create_corner_indices(self):
+        '''Creates the indices for each corner on the cube using modulus to create
+        a specific index sequence.'''
+
+        # top corner indices sequencies
+        # -----sequence 1------sequence 2------sequence 3-----
+        #       0 0 0           1 0 0           4 0 2
+        #       0 0 2           4 0 0           3 0 2
+        #       0 2 2           3 0 0           2 0 2
+        #       0 2 0           2 0 0           1 0 2
+
+        # buttom corner indices sequencies
+        # -----sequence 4------sequence 5------sequence 6-----
+        #       5 0 0           1 2 2           2 2 0
+        #       5 0 2           2 2 2           3 2 0
+        #       5 2 2           3 2 2           4 2 0
+        #       5 2 0           4 2 2           1 2 0
+
+        for index in range(4):
+            self.corner_indices['top'][index].append([0, 2 % (index + 1), 2 * (
+                        index ** 2) % 3])  # creates sequence 1
+            self.corner_indices['top'][index].append(
+                [(5 - index) % (4 + index), 0, 0])  # creates sequence 2
+            self.corner_indices['top'][index].append(
+                [4 - index, 0, 2])  # creates sequence 3
+
+            self.corner_indices['buttom'][index].append([5, 2 % (index + 1),
+                                                         2 * (
+                                                                     index ** 2) % 3])  # creates sequence 4
+            self.corner_indices['buttom'][index].append(
+                [index + 1, 2, 2])  # creates sequence 5
+            self.corner_indices['buttom'][index].append(
+                [(index + 2) % (7 - index), 2, 0])  # creates sequence 6
+
     def create_color_palette(self):
         '''Creates and adds buttons to the color_palette_frame according to the
         amount of items in the parameter colors (In this case 6). This must be a list of
@@ -162,15 +239,18 @@ class RubiksApp(customtkinter.CTk):
         column = 0
         button_keys = list(
             self.color_palette_buttons.keys())  # creates a list of the keys in color_palette_buttons
-        colors = self.order_colors(list("rbyogw"))
+        colors = self.order_colors(
+            list("rbyogw"))  # returns a ordered copy of the color details
 
         for color in colors:
             button = customtkinter.CTkButton(master=self.color_palette_frame,
                                              text='',
-                                             fg_color=color['main_color'],
+                                             fg_color=(color['main_color'],
+                                                       color['hover_color']),
                                              hover_color=color['hover_color'],
+                                             state="disabled",
                                              command=lambda
-                                                 color=color: self.get_color(
+                                                 color=color: self.color_palette_button_event(
                                                  color))
             button.grid(row=row, column=column, pady=5, padx=5)
             # adds the button instance to the dictionary using the button_keys list and the column as the index
