@@ -306,6 +306,64 @@ class RubiksApp(customtkinter.CTk):
 
             face_index += 1
 
+    def tile_button_event(self, face_index, row_index, colum_index):
+        '''Colors an individual tiles according to the arguments passed in.'''
+        if self.selected_color != None:  # ensures a color has been selected.
+            main_color = self.selected_color["main_color"]
+            hover_color = self.selected_color["hover_color"]
+
+            self.coloring_reference[face_index][row_index][colum_index] = \
+            self.selected_color[
+                "color_reference"]  # adds the reference color to the cubes coloring reference
+            self.cube_buttons[face_index][row_index][colum_index].configure(
+                fg_color=main_color,
+                hover_color=hover_color)  # changes the tile/button color
+
+    def color_centre_tiles(self, start_color):
+        '''Colors the centre tile of each face relative to the rotation details.'''
+        default_color_order = list('wogrby')  # sets a defual order of colors
+        # contains rotation details for each color if they were to be the start color
+        rotation_details = {'yellow': ('X', 0),
+                            'white': ('X', 2),
+                            'green': ('X', 1, -1),
+                            'blue': ('X', 1),
+                            'orange': ('Z', 1, -1),
+                            'red': ('Z', 1)
+                            }
+        coloring_reference_copy = self.create_cube_copy(self.coloring_reference)
+
+        for key in rotation_details.keys():
+            if key == start_color:
+                # passes in the default color order and returns a list after the rotations have been performed
+                color_order = self.cube_rotation(default_color_order,
+                                                 *rotation_details[key])
+                break
+
+        colors = self.order_colors(
+            color_order)  # returns a copy of the color details in order
+
+        for face_index in range(6):
+            main_color = colors[face_index]["main_color"]
+            hover_color = colors[face_index]["hover_color"]
+            # adds the color reference to the centre of each face
+            coloring_reference_copy[face_index][1][1] = colors[face_index][
+                'color_reference']
+            # passes in the coloring reference copy then colors the tiles
+        self.color_tiles(coloring_reference_copy)
+
+    def order_colors(self, order):
+        '''Returns a ordered copy of the color details.'''
+        color_list = self.color_details[:6]  # creates the copy
+
+        for index in range(len(order)):
+            # Loops through color list until all the values in the list order, equal the coresponding color details
+            for color in color_list:
+                if order[index] == color['color_reference']:
+                    order[
+                        index] = color  # turns the color reference to the color details
+                    color_list.remove(color)  # removes that color
+        return order
+
     def get_color(self, color):
         self.selected_color = color
 
