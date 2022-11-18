@@ -140,9 +140,19 @@ class RubiksApp(customtkinter.CTk):
         self.create_corner_indices()
 
     def create_cube_representation(self, default_value):
+        '''Creates a list with a default value in a way that represents the cube.'''
         faces, rows, columns = (6, 3, 3)
-        return [[[default_value for column in range(columns)] for row in
-                 range(rows)] for face in range(faces)]
+        return [[[default_value for column in range(columns)] for row in range(rows)] for face in range(faces)]
+
+    def create_cube_copy(self, cube):
+        '''Returns a copy of the cube representation passed in.'''
+        return [[row[:] for row in face[:]] for face in cube]
+
+    def add_empty_lists_to_indices_dictionary(self, *indices_dictionaies):
+        '''Adds 4 empty lists to each section of the indices dictionary.'''
+        for dictionary in indices_dictionaies:
+            for key in dictionary.keys():
+                dictionary[key] = [[] for x in range(4)]
 
     def create_color_palette(self):
         '''Creates and adds buttons to the color_palette_frame according to the
