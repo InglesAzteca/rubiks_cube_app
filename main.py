@@ -467,6 +467,70 @@ class RubiksApp(customtkinter.CTk):
             check_box['check_box'].grid(row=row, column=0, padx=20, pady=10)
             row += 1
 
+    def change_check_box_states(self, required_states):
+        '''Changes the state of the check boxes according to a list of required
+        states and returns the required states list which is the current states
+        after the for loop has ended.'''
+
+        # returns a list of the check boxes variables.
+        check_box_variables = self.get_dictionary_details(
+            self.check_box_details, return_value='variable')
+        # creates a list of binary values representing the current states
+        current_states = [variable.get() for variable in check_box_variables]
+
+        # returns the check box instances
+        check_boxes = self.get_dictionary_details(self.check_box_details,
+                                                  return_value='check_box')
+
+        for index in range(len(current_states)):
+            current, required = current_states[index], required_states[index]
+            if current != required:
+                # if the check box state is 0/off it is set to 1/on
+                if current == 0:
+                    check_boxes[index].select()
+                # if the check box state is 1/on it is set to 0/off
+                elif current == 1:
+                    check_boxes[index].deselect()
+
+        return required_states
+
+    def color_tiles_according_to_check_box_states(self, check_box_states):
+        '''With a list of the check box states this function calls a function
+        to color or remove color from a section of the cube.'''
+
+        # retuns the check box's names that are used to identify what sections need to be colored.
+        check_box_names = self.get_dictionary_details(self.check_box_details,
+                                                      return_value='name')
+
+        for index in range(len(check_box_states)):
+            # if the check box state is 0/off color is removed from the tiles.
+            if check_box_states[index] == 0:
+                self.check_box_tile_coloring(check_box_names[index], 'remove')
+
+            # if the check box state is 1/on the tiles are colored.
+            elif check_box_states[index] == 1:
+                self.check_box_tile_coloring(check_box_names[index], 'add')
+
+    def get_dictionary_details(self, detail_dictionaries, reference_value=None, return_value=None):
+        '''This function can be used to return specific details of a dictionary using a
+        reference value (actual value we have) and a return value (key of the value we want).'''
+
+        # if a reference value is not passed in, a list of all the values in the
+        # list of dictionaries with the key return value is returned.
+        if reference_value == None:
+            return [details[return_value] for details in detail_dictionaries]
+        else:
+            for item in detail_dictionaries:
+                if reference_value in item.values():
+                    # if a return value is not passed in, the dictionary containing
+                    # the reference value is returned.
+                    if return_value == None:
+                        return item
+                    # if both the reference value and the return value are passed
+                    # in the specific value in the dictionary is returned.
+                    else:
+                        return item[return_value]
+
     def checkbox_event(self, checkbox_name, variable, required_states):
         '''Calls a coloring function and a function that changes the check box
         states, when any of the check boxes is clicked.'''
