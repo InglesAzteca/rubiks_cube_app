@@ -91,6 +91,8 @@ class RubiksApp(customtkinter.CTk):
         self.coloring_toggles_frame.grid_columnconfigure(0, weight=1)
         self.coloring_toggles_frame.grid_rowconfigure(5, weight=1)
 
+        self.start_color_menu_var = customtkinter.StringVar(
+            value="Start From")  # set initial value
         self.start_color_menu = customtkinter.CTkOptionMenu(
             master=self.coloring_toggles_frame,
             values=["White",
@@ -99,39 +101,11 @@ class RubiksApp(customtkinter.CTk):
                     "Blue",
                     "Orange",
                     "Red"],
-            command=self.start_color_menu_callback)
+            command=self.start_color_menu_callback,
+            variable=self.start_color_menu_var)
         self.start_color_menu.grid(row=0, column=0, padx=20, pady=10)
-        self.start_color_menu.set("Start From")  # set initial value
 
-        self.cross_check_var = tkinter.IntVar()
-        self.cross_checkbox = customtkinter.CTkCheckBox(
-            master=self.coloring_toggles_frame,
-            text="Cross",
-            command=self.cross_checkbox_event,
-            variable=self.cross_check_var,
-            onvalue=1,
-            offvalue=0)
-        self.cross_checkbox.grid(row=1, column=0, padx=20, pady=10)
-
-        self.f2l_check_var = tkinter.IntVar()
-        self.f2l_checkbox = customtkinter.CTkCheckBox(
-            master=self.coloring_toggles_frame,
-            text="F2L  ",
-            command=self.f2l_checkbox_event,
-            variable=self.f2l_check_var,
-            onvalue=1,
-            offvalue=0)
-        self.f2l_checkbox.grid(row=2, column=0, padx=20, pady=10)
-
-        self.oll_check_var = tkinter.IntVar()
-        self.oll_checkbox = customtkinter.CTkCheckBox(
-            master=self.coloring_toggles_frame,
-            text="OLL  ",
-            command=self.oll_checkbox_event,
-            variable=self.oll_check_var,
-            onvalue=1,
-            offvalue=0)
-        self.oll_checkbox.grid(row=3, column=0, padx=20, pady=10)
+        self.create_check_boxes()
 
         # =============== color palette frame ==============
 
@@ -151,13 +125,19 @@ class RubiksApp(customtkinter.CTk):
         # add cube face frames
         self.create_cube_face_frames()
 
-        # add tiles to each face
-        self.cube = self.create_cube_representation(
+        # add tiles/buttons to each face
+        self.cube_buttons = self.create_cube_representation(
             None)  # creates an empty cube with default value None
-        self.add_tiles_to_faces()
+        self.add_tiles_to_face_frames()
 
-        self.cube_coloring_reference = self.create_cube_representation(
+        self.coloring_reference = self.create_cube_representation(
             'd')  # creates an empty cube with default value d
+
+        self.add_empty_lists_to_indices_dictionary(self.edge_indices,
+                                                   self.corner_indices)
+
+        self.create_edge_indices()
+        self.create_corner_indices()
 
     def create_cube_representation(self, default_value):
         faces, rows, columns = (6, 3, 3)
