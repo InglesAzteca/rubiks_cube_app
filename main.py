@@ -378,44 +378,6 @@ class RubiksApp(customtkinter.CTk):
         self.start_color = start_color.lower()
         self.color_centre_tiles(self.start_color)
 
-    def color_centre_tiles(self, start_color):
-        default_color_order = list('wogrby')
-
-        rotation_details = {'yellow': ('X', 0),
-                            'white': ('X', 2),
-                            'green': ('X', 1, -1),
-                            'blue': ('X', 1),
-                            'orange': ('Z', 1, -1),
-                            'red': ('Z', 1)
-                            }
-        for key in rotation_details.keys():
-            if key == start_color:
-                color_order = self.cube_rotation(default_color_order,
-                                                 *rotation_details[key])
-                break
-
-        colors = self.order_colors(color_order)
-
-        for face_index in range(6):
-            main_color = colors[face_index]["main_color"]
-            hover_color = colors[face_index]["hover_color"]
-
-            self.cube_coloring_reference[face_index][1][1] = colors[
-                'color_reference']
-            # call coloring function instead
-            self.cube[face_index][1][1].configure(fg_color=main_color,
-                                                  hover_color=hover_color)
-
-    def order_colors(self, order):
-        color_list = self.color_details[:6]
-
-        for index in range(len(order)):
-            for color in color_list:
-                if order[index] == color['main_color'][0]:
-                    order[index] = color
-                    color_list.remove(color)
-        return order
-
     def cross_checkbox_event(self):
         print(self.cross_check_var.get())
         # if self.cross_check_var.get() == 1:
