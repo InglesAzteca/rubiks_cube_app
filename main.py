@@ -544,8 +544,35 @@ class RubiksApp(customtkinter.CTk):
         self.color_tiles_according_to_check_box_states(specific_required_states)
 
     def start_color_menu_callback(self, start_color):
+        '''This function is called when the start color has been selected.'''
+
+        # enables the buttons if the start color hasn't been selected previously.
+        if self.start_color == None:
+            self.enable_color_palette()
+            self.enable_toggle_buttons()
+
         self.start_color = start_color.lower()
+        # uses the start color to color the centre tiles in specific order.
         self.color_centre_tiles(self.start_color)
+
+        # returns a list of all the check box's variables
+        check_box_variables = self.get_dictionary_details(self.check_box_details, return_value='variable')
+        # creates a list of the states (0/1) of the check boxes
+        current_states = [variable.get() for variable in check_box_variables]
+
+        # uses the current states to color sections of the cube
+        self.color_tiles_according_to_check_box_states(current_states)
+
+    def enable_toggle_buttons(self):
+        '''Sets the state of each toggle button to normal/chlickable.'''
+        for check_box in self.check_box_details:
+            check_box['check_box'].configure(state=tkinter.NORMAL)
+
+    def enable_color_palette(self):
+        '''Sets the state of each color palette button to normal/chlickable and
+        sets the color to the main color.'''
+        for palette_button in self.color_palette_buttons.values():
+            palette_button.configure(state='normal', fg_color=palette_button.fg_color[0]) #fg_color is a tuple
 
     def cross_checkbox_event(self):
         print(self.cross_check_var.get())
