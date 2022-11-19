@@ -295,6 +295,8 @@ class RubiksApp(customtkinter.CTk):
                 fg_color=main_color,
                 hover_color=hover_color)
 
+        self.check_if_all_tiles_are_colored()
+
     def color_centre_tiles(self, start_color):
         """Colors the centre tile of each face relative to the rotation details."""
 
@@ -513,6 +515,8 @@ class RubiksApp(customtkinter.CTk):
         # colors sections on the cube using a list of states
         self.color_tiles_according_to_check_box_states(specific_required_states)
 
+        self.check_if_all_tiles_are_colored()
+
     def start_color_menu_callback(self, start_color):
         """This function is called when the start color has been selected."""
 
@@ -637,6 +641,17 @@ class RubiksApp(customtkinter.CTk):
                     coloring_reference_copy[0][row][column] = color
 
         return coloring_reference_copy
+
+    def check_if_all_tiles_are_colored(self):
+        """Depending if the coloring reference list contains the value d
+        (which represents the default color), true (if d is not in the list) or
+        false (if d is in the list) is returned."""
+
+        for face in self.coloring_reference:
+            for row in face:
+                if 'd' in row:
+                    return False
+        return True
 
     def on_closing(self, event=0):
         self.destroy()
