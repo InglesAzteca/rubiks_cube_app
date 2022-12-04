@@ -10,20 +10,20 @@ class RubiksApp(customtkinter.CTk):
     HEIGHT = 720
 
     color_details = [
-        {'color_name': 'red', 'color_reference': 'r', 'main_color': 'red',
-         'hover_color': '#b00502'},
-        {'color_name': 'blue', 'color_reference': 'b', 'main_color': 'blue',
-         'hover_color': '#19158a'},
-        {'color_name': 'yellow', 'color_reference': 'y', 'main_color': 'yellow',
-         'hover_color': '#91991f'},
-        {'color_name': 'orange', 'color_reference': 'o', 'main_color': 'orange',
-         'hover_color': '#a16312'},
-        {'color_name': 'green', 'color_reference': 'g', 'main_color': 'green',
-         'hover_color': '#0e5207'},
-        {'color_name': 'white', 'color_reference': 'w', 'main_color': 'white',
-         'hover_color': '#afb8ae'},
-        {'color_name': 'default', 'color_reference': 'd', 'main_color': '#1f6aa5',
-         'hover_color': '#1f6aa5'}
+        {'color_name': 'red', 'color_reference': 'r', 'light_color': 'red',
+         'dark_color': '#b00502'},
+        {'color_name': 'blue', 'color_reference': 'b', 'light_color': 'blue',
+         'dark_color': '#19158a'},
+        {'color_name': 'yellow', 'color_reference': 'y', 'light_color': 'yellow',
+         'dark_color': '#91991f'},
+        {'color_name': 'orange', 'color_reference': 'o', 'light_color': 'orange',
+         'dark_color': '#a16312'},
+        {'color_name': 'green', 'color_reference': 'g', 'light_color': 'green',
+         'dark_color': '#0e5207'},
+        {'color_name': 'white', 'color_reference': 'w', 'light_color': 'white',
+         'dark_color': '#afb8ae'},
+        {'color_name': 'default', 'color_reference': 'd', 'light_color': '#1f6aa5',
+         'dark_color': '#1f6aa5'}
     ]
     face_frames = {
                 'white_face': None,
@@ -230,9 +230,8 @@ class RubiksApp(customtkinter.CTk):
 
             button = customtkinter.CTkButton(master=self.color_palette_frame,
                                              textvariable=variable,
-                                             fg_color=(color['main_color'],
-                                                       color['hover_color']),
-                                             hover_color=color['hover_color'],
+                                             fg_color=color['dark_color'],
+                                             hover_color=color['dark_color'],
                                              state="disabled",
                                              command=lambda button=self.color_palette_button_details[index]: self.color_palette_button_event(button))
             button.grid(row=row, column=column, pady=5, padx=5)
@@ -289,40 +288,49 @@ class RubiksApp(customtkinter.CTk):
 
     def tile_button_event(self, face_index, row_index, column_index):
         """Colors an individual tiles according to the arguments passed in."""
+        coloring_reference_copy = self.create_cube_copy(self.coloring_reference)
+        is_centre_tile = (row_index == 1) and (column_index == 1)
 
-        if self.selected_color_palette_button != None:  # ensures a color has been selected.
-            tile_color_reference = self.coloring_reference[face_index][row_index][column_index]
+        # ensures a color has been selected and that it is not the centre tile.
+        if (self.selected_color_palette_button is not None) and (not is_centre_tile):
             palette_color_reference = self.selected_color_palette_button['color_reference']
-            self.change_color_palette_variable(tile_color_reference, palette_color_reference)
 
-            main_color = self.get_dictionary_details(self.color_details, palette_color_reference, "main_color")
-            hover_color = self.get_dictionary_details(self.color_details, palette_color_reference, "hover_color")
-
-            # adds the reference color to the cubes coloring reference
-            self.coloring_reference[face_index][row_index][column_index] = palette_color_reference
-            # changes the tile/button color
-            self.cube_buttons[face_index][row_index][column_index].configure(
-                fg_color=main_color,
-                hover_color=hover_color)
+            coloring_reference_copy[face_index][row_index][column_index] = palette_color_reference
+            self.color_tiles(coloring_reference_copy)
 
         self.check_if_all_tiles_are_colored()
 
-    def change_color_palette_variable(self, tile_color_reference, palette_color_reference):
-        self.selected_color_palette_button = self.get_dictionary_details(self.color_palette_button_details, palette_color_reference)
 
-        color_palette_variable = self.selected_color_palette_button["variable"]
-        variable_number = int(color_palette_variable.get()) - 1
-        color_palette_variable.set(str(variable_number))
+    def change_button_variable_by(self, palette_color_reference, amount):
+        color_palette_variable = self.get_dictionary_details(
+            self.color_palette_button_details, palette_color_reference, "variable")
 
-        if variable_number == 0:
-            palette_button = self.selected_color_palette_button['button']
-            palette_button.configure(state='disabled', fg_color=palette_button.hover_color)
+        new_variable_number = int(color_palette_variable.get()) + amount
+        color_palette_variable.set(str(new_variable_number))
+        if new_variable_number > 0:
+            self.change_button_state(palette_color_reference, "normal")
+        elif new_variable_number == 0:
+            self.change_button_state(palette_color_reference, "disabled")
             self.selected_color_palette_button = None
 
-        if tile_color_reference != 'd':
-            color_palette_variable = self.get_dictionary_details(self.color_palette_button_details, tile_color_reference, "variable")
-            variable_number = int(color_palette_variable.get())
-            color_palette_variable.set(str(variable_number + 1))
+    def change_button_state(self, reference, state):
+        color_dictionary = self.get_dictionary_details(self.color_details, reference)
+        if state == "normal":
+            color = color_dictionary["light_color"]
+        elif state == "disabled":
+            color = color_dictionary["dark_color"]
+
+        palette_button = self.get_dictionary_details(
+            self.color_palette_button_details, reference, "button")
+        palette_button.configure(state=state, fg_color=color)
+
+    def change_color_palette_variable(self, tile_color_reference, palette_color_reference):
+        if tile_color_reference != "d" or palette_color_reference == "d":
+            self.change_button_variable_by(tile_color_reference, 1)
+
+        if palette_color_reference != "d":
+            self.change_button_variable_by(palette_color_reference, -1)
+
 
     def color_centre_tiles(self, start_color):
         """Colors the centre tile of each face relative to the rotation details."""
@@ -347,8 +355,8 @@ class RubiksApp(customtkinter.CTk):
         colors = self.order_colors(color_order) # returns a copy of the color details in order
 
         for face_index in range(6):
-            main_color = colors[face_index]["main_color"]
-            hover_color = colors[face_index]["hover_color"]
+            light_color = colors[face_index]["light_color"]
+            dark_color = colors[face_index]["dark_color"]
             # adds the color reference to the centre of each face
             coloring_reference_copy[face_index][1][1] = colors[face_index]['color_reference']
 
@@ -385,13 +393,13 @@ class RubiksApp(customtkinter.CTk):
 
                         color = self.get_dictionary_details(self.color_details, new_color)
 
-                        main_color = color['main_color']
-                        hover_color = color['hover_color']
+                        light_color = color['light_color']
+                        dark_color = color['dark_color']
 
                         # updates the color
                         self.cube_buttons[face][row][column].configure(
-                            fg_color=main_color,
-                            hover_color=hover_color)
+                            fg_color=light_color,
+                            hover_color=dark_color)
 
         self.coloring_reference = copy_of_coloring_reference  # updates the coloring reference
 
@@ -575,8 +583,11 @@ class RubiksApp(customtkinter.CTk):
         sets the color to the main color."""
         # gets the button instances from the color palette button's details
         palette_buttons = self.get_dictionary_details(self.color_palette_button_details, return_value='button')
+
         for button in palette_buttons:
-            button.configure(state='normal', fg_color=button.fg_color[0])  # fg_color is a tuple
+            color_reference = self.get_dictionary_details(self.color_palette_button_details, button, 'color_reference')
+            light_color = self.get_dictionary_details(self.color_details, color_reference, 'light_color')
+            button.configure(state='normal', fg_color=light_color)
 
     def check_box_tile_coloring(self, check_box, add_remove):
         """Colors or removes color from the tiles in a section of the cube."""
