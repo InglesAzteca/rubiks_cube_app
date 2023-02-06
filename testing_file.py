@@ -1,39 +1,22 @@
-# st = 'wogrby'
-# cube = list(st)
+# import tkinter
+# import customtkinter
+#
+# customtkinter.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
+# customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+#
+# app = customtkinter.CTk()
+# app.geometry("400x780")
+# app.title("CustomTkinter simple_example.py")
+#
+# frame_1 = customtkinter.CTkFrame(master=app)
+# frame_1.pack(pady=20, padx=60, fill="both", expand=True)
+#
+# label = customtkinter.CTkLabel(master=frame_1, text='boobs', width=110, height=20, fg_color='red')
+# label.place(relx = 1, x =-4, y = 7, anchor = tkinter.NE)
+#
+# # b1 = customtkinter.CTkLabel(frame_1, text = "Click me !")
+# # b1.place(relx = 1, x =-2, y = 2, anchor = tkinter.NE)
+#
+# app.mainloop()
 
-# def cube_rotation(cube, direction, amount): # up, down, left, right
-#     if direction == 'up':
-#         cube[0], cube[2] = cube[2], cube[0]
-#         cube[2], cube[5] = cube[5], cube[2]
-#         cube[5], cube[4] = cube[4], cube[5]
-
-#     return cube
-
-# print(cube_rotation(cube, 'up', 1))
-
-
-def cube_rotation(X_Y_Z, amount, prime=1):
-    X = [[0, 2], [2, 5], [5, 4]]
-    Y = [[1, 2], [2, 3], [3, 4]]
-    Z = [[0, 1], [1, 5], [5, 3]]
-
-    st = 'wogrby'
-    cube = list(st)
-
-    if X_Y_Z == 'X':
-        rotation = X
-    elif X_Y_Z == 'Y':
-        rotation = Y
-    elif X_Y_Z == 'Z':
-        rotation = Z
-
-    for n in range(amount):
-        for r in rotation[::prime]:
-            r = r[::prime]
-            cube[r[0]], cube[r[1]] = cube[r[1]], cube[r[0]]
-
-    return cube
-
-
-l = [1, 2, 3, 4, 5, 6, 7]
-print(l[:6])
+print(2 % 2)
