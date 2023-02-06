@@ -247,7 +247,6 @@ def calculate_edge_parity():
         print(actual_color_pair, correct_color_pair)
         if tile_color == centre_color or actual_color_pair == correct_color_pair:
             correct += 1
-        elif:
             wrong += 1
 
     print(correct)
@@ -263,3 +262,33 @@ def determine_edge_parity():
     all_edge_indices = [edge for section in
                         [edges["top"], edges["middle"], edges["bottom"]] for
                         edge in section]
+
+def handling_check_box_states_with_tile_event(self, indices):
+    face, row, column = indices
+    indices_list = [self.cross_indices, self.f2l_indices, self.oll_indices]
+    states = get_dictionary_details(checkboxes.checkbox_details,
+                                    return_value="variable")
+    required_states = get_dictionary_details(checkboxes.checkbox_details,
+                                             return_value="required_states")
+
+    current_tile_color = self.coloring_reference[face][row][column]
+    selected_color = color_palette.selected_color
+
+    is_same_color = selected_color == current_tile_color
+
+    if not is_same_color:
+        for index in range(3):
+            if indices in indices_list[index] and states[index].get() == 1:
+                checkboxes.change_checkbox_states(required_states[index][0])
+                break
+
+def get_section_indices_required_states_and_name(self, indices):
+        indices_list = [self.cross_indices, self.f2l_indices, self.oll_indices]
+        required_states = get_dictionary_details(checkboxes.checkbox_details,
+                                                 return_value="required_states")
+        section_names = get_dictionary_details(checkboxes.checkbox_details,
+                                               return_value="name")
+        for index in range(3):
+            section_indices = indices_list[index]
+            if indices in section_indices:
+                return section_indices, required_states[index], section_names[index]

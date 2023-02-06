@@ -5,11 +5,6 @@ from selected_color_label import SelectedColorLabel
 
 from other_functions import *
 
-customtkinter.set_appearance_mode(
-    "Dark")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme(
-    "blue")  # Themes: "blue" (standard), "green", "dark-blue"
-# hah
 
 class ColorPalette:
     def __init__(self):
@@ -152,16 +147,14 @@ class CheckBoxes:
     def checkbox_event(self, variable, required_states):
         """Calls a coloring function and a function that changes the check box
         states, when any of the check boxes is clicked."""
-
-        state = variable.get()  # returns 0 or 1 (represents the state: 0 = off, 1 = on)
+        # returns 0 or 1 (represents the state: 0 = off, 1 = on)
+        state = variable.get()
 
         # colors sections on the cube using a list of states
         cube_coloring.required_check_box_state_coloring(required_states[state])
 
         # changes the check box states to their required state
         self.change_checkbox_states(required_states[state])
-
-        # check if all tiles are colored
 
     def enable_or_disable_checkboxes(self, enable_disable):
         """Sets the state of each toggle button to normal/chlickable."""
@@ -314,26 +307,16 @@ class CubeColoring:
         coloring_reference_copy = create_cube_copy(self.coloring_reference)
         is_centre_tile = (row_index == 1) and (column_index == 1)
 
-        self.handling_check_box_states_with_tile_event(
-            [face_index, row_index, column_index])
-
         # ensures a color has been selected and that it is not the centre tile.
         if not is_centre_tile:
             coloring_reference_copy[face_index][row_index][
                 column_index] = color_palette.selected_color
+
+            will_affect = self.will_tile_coloring_affect_checkboxes(coloring_reference_copy)
+            if will_affect != "Not affected":
+                checkboxes.change_checkbox_states(will_affect)
+
             self.color_tiles(coloring_reference_copy)
-
-            are_colored = [self.is_cross_colored(), self.is_f2l_colored(),
-                           self.is_oll_colored()]
-            required_states = get_dictionary_details(
-                checkboxes.checkbox_details, return_value="required_states")
-
-            for index in range(3):
-                if are_colored[index]:
-                    required_state = required_states[index][1]
-                    checkboxes.change_checkbox_states(required_state)
-                else:
-                    break
 
     def color_tiles(self, copy_of_coloring_reference):
         """Uses a modified copy of the cube coloring reference list, colors the
@@ -365,7 +348,7 @@ class CubeColoring:
 
         self.coloring_reference = copy_of_coloring_reference  # updates the coloring reference
 
-        if self.is_cube_colored():
+        if self.is_cube_colored(self.coloring_reference):
             solve.enable_or_disable_solve_button("normal")
         else:
             solve.enable_or_disable_solve_button("disable")
@@ -452,29 +435,37 @@ class CubeColoring:
 
         self.color_tiles(coloring_reference_copy)
 
-    def handling_check_box_states_with_tile_event(self, indices):
-        indices_list = [self.cross_indices, self.f2l_indices, self.oll_indices]
-        states = get_dictionary_details(checkboxes.checkbox_details,
-                                        return_value="variable")
-        required_states = get_dictionary_details(checkboxes.checkbox_details,
-                                                 return_value="required_states")
-
-        current_tile_color = self.coloring_reference[indices[0]][indices[1]][indices[2]]
-        selected_color = color_palette.selected_color
-
-        is_same_color = selected_color == current_tile_color
-
-        if not is_same_color:
+    def will_tile_coloring_affect_checkboxes(self, coloring_reference_copy):
+        are_colored_before = [self.is_cross_colored(self.coloring_reference), self.is_f2l_colored(self.coloring_reference),
+                              self.is_oll_colored(self.coloring_reference)]
+        are_colored_after = [self.is_cross_colored(coloring_reference_copy), self.is_f2l_colored(coloring_reference_copy),
+                             self.is_oll_colored(coloring_reference_copy)]
+        if are_colored_before == are_colored_after:
+            return "Not affected"
+        else:
             for index in range(3):
-                if indices in indices_list[index] and states[index].get() == 1:
-                    checkboxes.change_checkbox_states(required_states[index][0])
-                    break
+                section_names = get_dictionary_details(
+                    checkboxes.checkbox_details,
+                    return_value="name")
+                section_name = section_names[index]
+
+                required_states = get_dictionary_details(
+                    checkboxes.checkbox_details, section_name,
+                    "required_states")
+
+                is_colored_after = are_colored_after[index]
+
+                if not is_colored_after:
+                    return required_states[0]
+
+            return required_states[1]
 
     def required_check_box_state_coloring(self, required_states):
         check_box_names = get_dictionary_details(checkboxes.checkbox_details,
                                                  return_value="name")
-        are_colored = [self.is_cross_colored(), self.is_f2l_colored(),
-                       self.is_oll_colored()]
+        are_colored = [self.is_cross_colored(self.coloring_reference),
+                       self.is_f2l_colored(self.coloring_reference),
+                       self.is_oll_colored(self.coloring_reference)]
 
         for index in range(3):
             coloring_reference_copy = create_cube_copy(self.coloring_reference)
@@ -590,35 +581,35 @@ class CubeColoring:
                        range(3)]
         return oll_indices
 
-    def is_cross_colored(self):
+    def is_cross_colored(self, coloring_reference):
         for indices in self.cross_indices:
             face, row, column = indices
-            centre_color = self.coloring_reference[face][1][1]
-            if self.coloring_reference[face][row][column] != centre_color:
+            centre_color = coloring_reference[face][1][1]
+            if coloring_reference[face][row][column] != centre_color:
                 return False
         return True
 
-    def is_f2l_colored(self):
+    def is_f2l_colored(self, coloring_reference):
         for indices in self.f2l_indices:
             face, row, column = indices
-            centre_color = self.coloring_reference[face][1][1]
-            if self.coloring_reference[face][row][column] != centre_color:
+            centre_color = coloring_reference[face][1][1]
+            if coloring_reference[face][row][column] != centre_color:
                 return False
         return True
 
-    def is_oll_colored(self):
-        for row in self.coloring_reference[0]:
+    def is_oll_colored(self, coloring_reference):
+        for row in coloring_reference[0]:
             output = len(set(row)) == 1
             if not output:
                 return output
         return output
 
-    def is_cube_colored(self):
+    def is_cube_colored(self, coloring_reference):
         """Depending if the coloring reference list contains the value d
         (which represents the default color), true (if d is not in the list) or
         false (if d is in the list) is returned."""
 
-        for face in self.coloring_reference:
+        for face in coloring_reference:
             for row in face:
                 if 'd' in row:
                     return False
