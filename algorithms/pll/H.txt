@@ -1,0 +1,13 @@
+Algorithm: (M2' U M2') U2 (M2' U M2')
+
+       y y y
+       y y y
+       y y y
+
+b g b  r o r  g b g  o r o  
+d d d  d d d  d d d  d d d  
+d d d  d d d  d d d  d d d  
+
+       d d d
+       d d d
+       d d d

@@ -1,0 +1,15 @@
+Algorithm: (R U' R U) R U (R U' R' U') R2
+Algorithm: y2 (R U R' U) (R' U' R2 U') R' U R' U R [U2]
+Algorithm: y2 (R2 U' R' U') R U R U (R U' R)
+
+       y y y
+       y y y
+       y y y
+
+r g r  g o g  o r o  b b b  
+d d d  d d d  d d d  d d d  
+d d d  d d d  d d d  d d d  
+
+       d d d
+       d d d
+       d d d

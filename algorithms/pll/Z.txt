@@ -1,0 +1,14 @@
+Algorithm: (M2' U M2' U) (M' U2) (M2' U2 M') [U2]
+Algorithm: y' M' U (M2' U M2') U (M' U2 M2) [U']
+
+       y y y
+       y y y
+       y y y
+
+r b r  g o g  o g o  b r b  
+d d d  d d d  d d d  d d d  
+d d d  d d d  d d d  d d d  
+
+       d d d
+       d d d
+       d d d
