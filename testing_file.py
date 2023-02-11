@@ -19,4 +19,9 @@
 #
 # app.mainloop()
 
-print(2 % 2)
+import other_functions
+
+
+
+
+

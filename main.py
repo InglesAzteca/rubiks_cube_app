@@ -2,6 +2,7 @@ import tkinter
 import customtkinter
 
 from selected_color_label import SelectedColorLabel
+from algorithm_display import AlgorithmDisplay
 
 from other_functions import *
 
@@ -308,15 +309,15 @@ class CubeColoring:
         is_centre_tile = (row_index == 1) and (column_index == 1)
 
         # ensures a color has been selected and that it is not the centre tile.
-        if not is_centre_tile:
-            coloring_reference_copy[face_index][row_index][
-                column_index] = color_palette.selected_color
+        # if not is_centre_tile:
+        coloring_reference_copy[face_index][row_index][
+            column_index] = color_palette.selected_color
 
-            will_affect = self.will_tile_coloring_affect_checkboxes(coloring_reference_copy)
-            if will_affect != "Not affected":
-                checkboxes.change_checkbox_states(will_affect)
+        will_affect = self.will_tile_coloring_affect_checkboxes(coloring_reference_copy)
+        if will_affect != "Not affected":
+            checkboxes.change_checkbox_states(will_affect)
 
-            self.color_tiles(coloring_reference_copy)
+        self.color_tiles(coloring_reference_copy)
 
     def color_tiles(self, copy_of_coloring_reference):
         """Uses a modified copy of the cube coloring reference list, colors the
@@ -351,6 +352,7 @@ class CubeColoring:
         if self.is_cube_colored(self.coloring_reference):
             solve.enable_or_disable_solve_button("normal")
         else:
+            pass
             solve.enable_or_disable_solve_button("disable")
 
     def color_section(self, section, coloring_reference_copy, add_remove):
@@ -616,7 +618,7 @@ class CubeColoring:
         return True
 
 
-class Solve:
+class SolveButton:
     def __init__(self):
         self.solve_button = None
 
@@ -635,7 +637,11 @@ class Solve:
         self.solve_button.grid(row=0, column=0, padx=16, pady=16)
 
     def solve_event(self):
-        pass
+        write_state_to_text_file(cube_coloring.coloring_reference,
+                                 "algorithms/pll/21.txt",
+                                 "D' (R U R' U') D (R2 U' R U') (R' U R' U) R2 [U]",
+                                 "(R U R') y' (R2 u' R U') (R' U R' u) R2")
+        rename_text_file("algorithms/pll/", "21.txt", "Gd.txt")
 
     def enable_or_disable_solve_button(self, normal_disable):
         if normal_disable == "normal":
@@ -660,22 +666,30 @@ class Solve:
         return f"Solve {stage_names[0]}"
 
 
-class AlgorithmDisplay:
+class DetermineAlgorithm:
     def __init__(self):
-        self.label = None
+        self.next_stage = "cross"
+        self.coloring_reference = cube_coloring.coloring_reference
 
-    def create_label(self, frame):
-        self.label = customtkinter.CTkLabel(
-            master=frame,
-            height=32,
-            width=650,
-            corner_radius=6,
-            fg_color="red",
-            text="")
-        self.label.grid(row=0, column=2, padx=16, pady=16)
+    def get_next_stage(self):
+        are_solved = [cube_coloring.is_cross_colored(self.coloring_reference),
+                      cube_coloring.is_f2l_colored(self.coloring_reference),
+                      cube_coloring.is_oll_colored(self.coloring_reference),
+                      cube_coloring.is_cube_colored(self.coloring_reference)]
+        stage_names = ["cross", "f2l", "oll", "pll", "solved"]
 
-    def change_algorithm(self):
+        for index in range(4):
+            is_solved = are_solved[index]
+            next_stage_name = stage_names[index + 1]
+            if not is_solved:
+                self.next_stage = next_stage_name
+            else:
+                self.next_stage = stage_names[0]
+
+    def search_stage_algorithms(self):
         pass
+
+
 
 
 color_palette = ColorPalette()
@@ -683,7 +697,7 @@ selected_color_label = SelectedColorLabel()
 checkboxes = CheckBoxes()
 start_color_menu = StartColorOptionMenu()
 cube_coloring = CubeColoring()
-solve = Solve()
+solve = SolveButton()
 algorithm_display = AlgorithmDisplay()
 
 
