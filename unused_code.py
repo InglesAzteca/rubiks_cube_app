@@ -292,3 +292,92 @@ def get_section_indices_required_states_and_name(self, indices):
             section_indices = indices_list[index]
             if indices in section_indices:
                 return section_indices, required_states[index], section_names[index]
+
+    def rotate_cube_x(self, amount=1, prime=1):
+        cube_state_copy = create_cube_copy(self.cube_state)
+        x = [[0, 2], [2, 5], [5, 4]]
+
+        for number_of_rotations in range(amount):
+            # if prime equals -1 the values in the list are reversed
+            for r in x[::prime]:
+                r = r[::prime]
+                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+
+            self.set_cube_state(cube_state_copy)
+            if prime == 1:
+                self.rotate_tiles_on_face(1, direction=-1)
+                self.rotate_tiles_on_face(3, direction=1)
+                self.rotate_tiles_on_face(4, amount=2)
+                self.rotate_tiles_on_face(5, amount=2)
+            elif prime == -1:
+                self.rotate_tiles_on_face(1)
+                self.rotate_tiles_on_face(3, direction=-1)
+                self.rotate_tiles_on_face(4, amount=2)
+                self.rotate_tiles_on_face(0, amount=2)
+
+    def rotate_cube_y(self, amount=1, prime=1):
+        cube_state_copy = create_cube_copy(self.cube_state)
+
+        y = [[1, 2], [2, 3], [3, 4]]
+
+        for number_of_rotations in range(amount):
+            # if prime equals -1 the values in the list are reversed
+            for r in y[::prime]:
+                r = r[::prime]
+                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+
+            self.set_cube_state(cube_state_copy)
+            if prime == 1:
+                # 1, 2, 3, 4 not affected
+                self.rotate_tiles_on_face(0, direction=1)
+                self.rotate_tiles_on_face(5, direction=-1)
+            elif prime == -1:
+                self.rotate_tiles_on_face(0, direction=-1)
+                self.rotate_tiles_on_face(5, direction=1)
+
+    def rotate_cube_z(self, amount=1, prime=1):
+        cube_state_copy = create_cube_copy(self.cube_state)
+
+
+        z = [[0, 1], [1, 5], [5, 3]]
+
+        for number_of_rotations in range(amount):
+            # if prime equals -1 the values in the list are reversed
+            for r in z[::prime]:
+                r = r[::prime]
+                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+
+            self.set_cube_state(cube_state_copy)
+            if prime == 1:
+                self.rotate_tiles_on_face(0, direction=1)
+                self.rotate_tiles_on_face(1, direction=1)
+                self.rotate_tiles_on_face(2, direction=1)
+                self.rotate_tiles_on_face(3, direction=1)
+                self.rotate_tiles_on_face(4, direction=-1)
+                self.rotate_tiles_on_face(5, direction=1)
+            elif prime == -1:
+                self.rotate_tiles_on_face(0, direction=-1)
+                self.rotate_tiles_on_face(1, direction=-1)
+                self.rotate_tiles_on_face(2, direction=-1)
+                self.rotate_tiles_on_face(3, direction=-1)
+                self.rotate_tiles_on_face(4, direction=1)
+                self.rotate_tiles_on_face(5, direction=-1)
+
+# for color_shift in range(4):
+            #     if color_order == ub_color_order:
+            #         return algorithm
+            #     else:
+            #         for face_shift in range(3):
+            #             for position_list_index in range(len(color_order)):
+            #                 for position_index in range(3):
+            #                     position = color_order[position_list_index][position_index]
+            #                     new_position = (position + 3) % 12
+            #                     color_order[position_list_index][position_index] = new_position
+            #                 color_order[position_list_index].sort()
+            #
+            #             if color_order == ub_color_order:
+            #                 return algorithm
+            #             print(ub_color_order)
+            #             print(color_order)
+            #             print()
+            #     color_order.append(color_order.pop(0))

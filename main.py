@@ -3,6 +3,7 @@ import customtkinter
 
 from selected_color_label import SelectedColorLabel
 from algorithm_display import AlgorithmDisplay
+from cube_rotations import CubeRotations
 
 from other_functions import *
 
@@ -243,7 +244,7 @@ class CubeColoring:
             'yellow_face': None
         }
         self.cube_buttons = create_cube_representation(None)
-        self.coloring_reference = create_cube_representation("d")
+        self.cube_reference = create_cube_representation("d")
 
         self.edge_indices = {'top': None, 'middle': None, 'bottom': None}
         self.corner_indices = {'top': None, 'bottom': None}
@@ -255,6 +256,7 @@ class CubeColoring:
         self.cross_indices = self.create_cross_indices()
         self.f2l_indices = self.create_f2l_indices()
         self.oll_indices = self.create_oll_indices()
+        self.pll_indices = self.create_pll_indices()
 
     def create_face_frames(self, frame):
         """Creates the layout of the cube faces using frames."""
@@ -305,21 +307,21 @@ class CubeColoring:
 
     def button_event(self, face_index, row_index, column_index):
         """Colors an individual tiles according to the arguments passed in."""
-        coloring_reference_copy = create_cube_copy(self.coloring_reference)
+        cube_reference_copy = create_cube_copy(self.cube_reference)
         is_centre_tile = (row_index == 1) and (column_index == 1)
 
         # ensures a color has been selected and that it is not the centre tile.
         # if not is_centre_tile:
-        coloring_reference_copy[face_index][row_index][
+        cube_reference_copy[face_index][row_index][
             column_index] = color_palette.selected_color
 
-        will_affect = self.will_tile_coloring_affect_checkboxes(coloring_reference_copy)
+        will_affect = self.will_tile_coloring_affect_checkboxes(cube_reference_copy)
         if will_affect != "Not affected":
             checkboxes.change_checkbox_states(will_affect)
 
-        self.color_tiles(coloring_reference_copy)
+        self.color_tiles(cube_reference_copy)
 
-    def color_tiles(self, copy_of_coloring_reference):
+    def color_tiles(self, copy_of_cube_reference):
         """Uses a modified copy of the cube coloring reference list, colors the
         tiles and then updates the coloring reference to the values in the copy
         which is the current state."""
@@ -327,8 +329,8 @@ class CubeColoring:
         for face in range(6):
             for row in range(3):
                 for column in range(3):
-                    current_color = self.coloring_reference[face][row][column]
-                    new_color = copy_of_coloring_reference[face][row][column]
+                    current_color = self.cube_reference[face][row][column]
+                    new_color = copy_of_cube_reference[face][row][column]
                     # colors a tile only if the value has been modified
                     if current_color != new_color:
 
@@ -347,15 +349,15 @@ class CubeColoring:
                             fg_color=light_color,
                             hover_color=dark_color)
 
-        self.coloring_reference = copy_of_coloring_reference  # updates the coloring reference
+        self.cube_reference = copy_of_cube_reference  # updates the coloring reference
 
-        if self.is_cube_colored(self.coloring_reference):
+        if self.is_cube_colored(self.cube_reference):
             solve.enable_or_disable_solve_button("normal")
         else:
             pass
             solve.enable_or_disable_solve_button("disable")
 
-    def color_section(self, section, coloring_reference_copy, add_remove):
+    def color_section(self, section, cube_reference_copy, add_remove):
         section_dictionary = {"cross": self.cross_indices,
                               "f2l": self.f2l_indices, "oll": self.oll_indices}
 
@@ -363,54 +365,61 @@ class CubeColoring:
             if add_remove == "remove":
                 color = "d"
             elif add_remove == "add":
-                color = coloring_reference_copy[face][1][1]
+                color = cube_reference_copy[face][1][1]
 
             is_centre_tile = row == 1 and column == 1
 
             if not is_centre_tile:
-                coloring_reference_copy[face][row][column] = color
+                cube_reference_copy[face][row][column] = color
 
-        self.color_tiles(coloring_reference_copy)
+        self.color_tiles(cube_reference_copy)
 
         self.remove_color_due_to_negative_variable(section_dictionary[section])
 
     def color_centre_tiles(self, start_color):
         """Colors the centre tile of each face relative to the rotation details.
         """
+        cube_reference_copy = create_cube_copy(self.cube_reference)
+
         default_color_order = list('wogrby')  # sets a default order of colors
+        for face_index in range(6):
+            color_reference = default_color_order[face_index]
+            cube_reference_copy[face_index][1][1] = color_reference
 
         # contains rotation details for each color if they were the start color
-        rotation_details = {'yellow': ('X', 0),
-                            'white': ('X', 2),
-                            'green': ('X', 1, -1),
-                            'blue': ('X', 1),
-                            'orange': ('Z', 1, -1),
-                            'red': ('Z', 1)
+        rotation_details = {'yellow': ('x', 1, 0),
+                            'white': ('x', 1, 2),
+                            'green': ('x', -1, 1),
+                            'blue': ('x', 1, 1),
+                            'orange': ('z', -1, 1),
+                            'red': ('z', 1, 1)
                             }
-        coloring_reference_copy = create_cube_copy(self.coloring_reference)
 
         for key in rotation_details.keys():
             if key == start_color:
                 # passes in the default color order and returns a list after the rotations have been performed
-                color_order = cube_rotation(default_color_order,
-                                            *rotation_details[key])
+                cube_rotations.set_cube_state(cube_reference_copy)
+                cube_rotations.rotate_cube(*rotation_details[key])
+
+                cube_reference_copy = create_cube_copy(cube_rotations.cube_state)
+                color_order = self.get_centre_tile_colors(cube_reference_copy)
                 break
 
         for face_index in range(6):
             # adds the color reference to the centre of each face
-            coloring_reference_copy[face_index][1][1] = color_order[face_index]
+            cube_reference_copy[face_index][1][1] = color_order[face_index]
 
         # passes in the coloring reference copy then colors the tiles
-        self.color_tiles(coloring_reference_copy)
+        self.color_tiles(cube_reference_copy)
 
-    def get_centre_tile_colors(self):
+    def get_centre_tile_colors(self, cube_reference):
         """Returns a list of all the centre tile color reference."""
-        return [face[1][1] for face in self.coloring_reference]
+        return [face[1][1] for face in cube_reference]
 
     def remove_color_due_to_negative_variable(self, section_indices):
         color_references = get_dictionary_details(
             color_palette.palette_details[:6], return_value="color_reference")
-        coloring_reference_copy = create_cube_copy(self.coloring_reference)
+        cube_reference_copy = create_cube_copy(self.cube_reference)
 
         for palette_color in color_references:
             variable_value = int(get_dictionary_details(
@@ -421,11 +430,11 @@ class CubeColoring:
                 for face in range(6):
                     for row in range(3):
                         for column in range(3):
-                            color = coloring_reference_copy[face][row][column]
+                            color = cube_reference_copy[face][row][column]
                             is_in_indices = [face, row,
                                              column] in section_indices
                             if color == palette_color and not is_in_indices:
-                                coloring_reference_copy[face][row][column] = "d"
+                                cube_reference_copy[face][row][column] = "d"
                                 variable_value += 1
                                 flag = variable_value < 0
                             if not flag:
@@ -435,13 +444,13 @@ class CubeColoring:
                     if not flag:
                         break
 
-        self.color_tiles(coloring_reference_copy)
+        self.color_tiles(cube_reference_copy)
 
-    def will_tile_coloring_affect_checkboxes(self, coloring_reference_copy):
-        are_colored_before = [self.is_cross_colored(self.coloring_reference), self.is_f2l_colored(self.coloring_reference),
-                              self.is_oll_colored(self.coloring_reference)]
-        are_colored_after = [self.is_cross_colored(coloring_reference_copy), self.is_f2l_colored(coloring_reference_copy),
-                             self.is_oll_colored(coloring_reference_copy)]
+    def will_tile_coloring_affect_checkboxes(self, cube_reference_copy):
+        are_colored_before = [self.is_cross_colored(self.cube_reference), self.is_f2l_colored(self.cube_reference),
+                              self.is_oll_colored(self.cube_reference)]
+        are_colored_after = [self.is_cross_colored(cube_reference_copy), self.is_f2l_colored(cube_reference_copy),
+                             self.is_oll_colored(cube_reference_copy)]
         if are_colored_before == are_colored_after:
             return "Not affected"
         else:
@@ -465,20 +474,20 @@ class CubeColoring:
     def required_check_box_state_coloring(self, required_states):
         check_box_names = get_dictionary_details(checkboxes.checkbox_details,
                                                  return_value="name")
-        are_colored = [self.is_cross_colored(self.coloring_reference),
-                       self.is_f2l_colored(self.coloring_reference),
-                       self.is_oll_colored(self.coloring_reference)]
+        are_colored = [self.is_cross_colored(self.cube_reference),
+                       self.is_f2l_colored(self.cube_reference),
+                       self.is_oll_colored(self.cube_reference)]
 
         for index in range(3):
-            coloring_reference_copy = create_cube_copy(self.coloring_reference)
+            cube_reference_copy = create_cube_copy(self.cube_reference)
             if required_states[index] == 0 and are_colored[index]:
                 add_remove = "remove"
                 self.color_section(check_box_names[index],
-                                   coloring_reference_copy, add_remove)
+                                   cube_reference_copy, add_remove)
             elif required_states[index] == 1:
                 add_remove = "add"
                 self.color_section(check_box_names[index],
-                                   coloring_reference_copy, add_remove)
+                                   cube_reference_copy, add_remove)
 
     def create_edge_indices(self):
         """Creates the indices for each edge on the cube using modulus to create
@@ -583,35 +592,41 @@ class CubeColoring:
                        range(3)]
         return oll_indices
 
-    def is_cross_colored(self, coloring_reference):
+    def create_pll_indices(self):
+        row = 0
+        pll_indices = [[face, row, column] for face in range(1, 5) for column in range(3)]
+
+        return pll_indices
+
+    def is_cross_colored(self, cube_reference):
         for indices in self.cross_indices:
             face, row, column = indices
-            centre_color = coloring_reference[face][1][1]
-            if coloring_reference[face][row][column] != centre_color:
+            centre_color = cube_reference[face][1][1]
+            if cube_reference[face][row][column] != centre_color:
                 return False
         return True
 
-    def is_f2l_colored(self, coloring_reference):
+    def is_f2l_colored(self, cube_reference):
         for indices in self.f2l_indices:
             face, row, column = indices
-            centre_color = coloring_reference[face][1][1]
-            if coloring_reference[face][row][column] != centre_color:
+            centre_color = cube_reference[face][1][1]
+            if cube_reference[face][row][column] != centre_color:
                 return False
         return True
 
-    def is_oll_colored(self, coloring_reference):
-        for row in coloring_reference[0]:
+    def is_oll_colored(self, cube_reference):
+        for row in cube_reference[0]:
             output = len(set(row)) == 1
             if not output:
                 return output
         return output
 
-    def is_cube_colored(self, coloring_reference):
+    def is_cube_colored(self, cube_reference):
         """Depending if the coloring reference list contains the value d
         (which represents the default color), true (if d is not in the list) or
         false (if d is in the list) is returned."""
 
-        for face in coloring_reference:
+        for face in cube_reference:
             for row in face:
                 if 'd' in row:
                     return False
@@ -637,11 +652,7 @@ class SolveButton:
         self.solve_button.grid(row=0, column=0, padx=16, pady=16)
 
     def solve_event(self):
-        write_state_to_text_file(cube_coloring.coloring_reference,
-                                 "algorithms/pll/21.txt",
-                                 "D' (R U R' U') D (R2 U' R U') (R' U R' U) R2 [U]",
-                                 "(R U R') y' (R2 u' R U') (R' U R' u) R2")
-        rename_text_file("algorithms/pll/", "21.txt", "Gd.txt")
+        print(determine_algorithm.search_through_pll_algorithms(cube_coloring.cube_reference))
 
     def enable_or_disable_solve_button(self, normal_disable):
         if normal_disable == "normal":
@@ -668,26 +679,82 @@ class SolveButton:
 
 class DetermineAlgorithm:
     def __init__(self):
-        self.next_stage = "cross"
-        self.coloring_reference = cube_coloring.coloring_reference
+        pass
 
     def get_next_stage(self):
-        are_solved = [cube_coloring.is_cross_colored(self.coloring_reference),
-                      cube_coloring.is_f2l_colored(self.coloring_reference),
-                      cube_coloring.is_oll_colored(self.coloring_reference),
-                      cube_coloring.is_cube_colored(self.coloring_reference)]
+        are_solved = [cube_coloring.is_cross_colored(cube_coloring.cube_reference),
+                      cube_coloring.is_f2l_colored(cube_coloring.cube_reference),
+                      cube_coloring.is_oll_colored(cube_coloring.cube_reference),
+                      cube_coloring.is_cube_colored(cube_coloring.cube_reference)]
         stage_names = ["cross", "f2l", "oll", "pll", "solved"]
 
         for index in range(4):
             is_solved = are_solved[index]
             next_stage_name = stage_names[index + 1]
             if not is_solved:
-                self.next_stage = next_stage_name
+               next_stage = next_stage_name
             else:
-                self.next_stage = stage_names[0]
+                next_stage = stage_names[0]
+        
+        return next_stage
 
     def search_stage_algorithms(self):
         pass
+
+    def calculate_pll_color_order(self, state):
+        pll_color_list = [state[face][row][column] for
+                          face, row, column in cube_coloring.pll_indices]
+
+        r = [r for r in range(len(pll_color_list)) if pll_color_list[r] == "r"]
+        g = [g for g in range(len(pll_color_list)) if pll_color_list[g] == "g"]
+        o = [o for o in range(len(pll_color_list)) if pll_color_list[o] == "o"]
+        b = [b for b in range(len(pll_color_list)) if pll_color_list[b] == "b"]
+
+        color_order = [r, g, o, b]
+
+        return color_order
+
+    def compare_to_pll_algorithm_state(self, cube_reference, algorithm_state):
+        # needs to be modified to give cube rotations and u turns
+        # also to work with different start colors
+        # try implement with other algorithms
+
+        algorithm_color_order = self.calculate_pll_color_order(algorithm_state)
+
+        for u_turn in range(3):
+            color_order = self.calculate_pll_color_order(cube_reference)
+
+            if color_order == algorithm_color_order:
+                return True
+            else:
+                for index in range(1, 4):
+                    if color_order[index] == algorithm_color_order[0]:
+                        for shift in range(index):
+                            color_order.append(color_order.pop(0))
+
+                        if color_order == algorithm_color_order:
+                            return True
+
+                display_cube(cube_reference)
+
+                cube_rotations.set_cube_state(cube_reference)
+                cube_rotations.rotate_face("U")
+                cube_reference = cube_rotations.cube_state
+
+                display_cube(cube_reference)
+        return False
+
+    def search_through_pll_algorithms(self, cube_reference):
+        pll_file_list = get_file_list_from_folder("algorithms\\pll")
+
+        for index in range(len(pll_file_list)):
+            algorithm_state, algorithm = read_state_from_text_file(pll_file_list[index])
+            if self.compare_to_pll_algorithm_state(cube_reference, algorithm_state):
+                return algorithm
+
+        return "No algorithms found."
+
+
 
 
 
@@ -699,6 +766,10 @@ start_color_menu = StartColorOptionMenu()
 cube_coloring = CubeColoring()
 solve = SolveButton()
 algorithm_display = AlgorithmDisplay()
+determine_algorithm = DetermineAlgorithm()
+cube_rotations = CubeRotations(cube_coloring.cube_reference,
+                               cube_coloring.edge_indices,
+                               cube_coloring.corner_indices)
 
 
 class RubiksApp(customtkinter.CTk):

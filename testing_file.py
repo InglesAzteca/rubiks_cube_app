@@ -21,6 +21,31 @@
 
 import other_functions
 
+# from main import CubeColoring
+#
+# c = CubeColoring()
+# print(c.f2l_indices)
+from cube_rotations import CubeRotations
+from other_functions import *
+from main import CubeColoring
+cube_coloring = CubeColoring()
+# edge = cube_coloring.edge_indices
+# corner = cube_coloring.corner_indices
+#
+# cube = read_state_from_text_file("algorithms/solved")[0]
+#
+# cr = CubeRotations(cube, edge, corner)
+# display_cube(cr.cube_state)
+# cr.rotate_face("d", -1, 3)
+# # cr.rotate_tiles_on_face(1, -1, 1)
+# display_cube(cr.cube_state)
+#
+# l = get_file_list_from_folder("algorithms\\pll")
+# print(l)
+# with open(l[0], "r") as f:
+#     print(f.readlines())
+
+change_bottom_two_rows_on_cube(get_file_list_from_folder("algorithms\\pll"), cube_coloring.oll_indices)
 
 
 

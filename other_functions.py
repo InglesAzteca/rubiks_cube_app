@@ -35,34 +35,13 @@ def add_empty_lists_to_indices_dictionary(*indices_dictionaries):
             dictionary[key] = [[] for x in range(4)]
 
 
-def cube_rotation(cube_state, X_Y_Z, amount=1, prime=1):
-    """Simulates a rotation of the cube."""
-
-    # rotation coordinates
-    X = [[0, 2], [2, 5], [5, 4]]
-    Y = [[1, 2], [2, 3], [3, 4]]
-    Z = [[0, 1], [1, 5], [5, 3]]
-
-    if X_Y_Z == 'X':
-        rotation = X
-    elif X_Y_Z == 'Y':
-        rotation = Y
-    elif X_Y_Z == 'Z':
-        rotation = Z
-
-    for number_of_rotations in range(amount):
-        # if prime equals -1 the values in the list are reversed
-        for r in rotation[::prime]:
-            r = r[::prime]
-            cube_state[r[0]], cube_state[r[1]] = cube_state[r[1]], \
-                                                 cube_state[r[0]]
-
-    return cube_state
-
-
 def create_cube_copy(cube):
     """Returns a copy of the cube representation passed in."""
     return [[row[:] for row in face[:]] for face in cube]
+
+
+def create_face_copy(face):
+    return [[face[row][column] for column in range(3)] for row in range(3)]
 
 
 def create_cube_representation(default_value):
@@ -169,4 +148,23 @@ def read_state_from_text_file(file_path):
     return cube_representation, algorithms
 
 
+def get_file_list_from_folder(directory):
+    file_list = [os.path.join(directory, file_name) for
+                 file_name in os.listdir(directory) if
+                 os.path.isfile(os.path.join(directory, file_name))]
+    return file_list
+
+
+def change_bottom_two_rows_on_cube(file_list, oll_indices):
+    print(file_list)
+    print(oll_indices)
+    for file_directory in file_list:
+        state, algorithm = read_state_from_text_file(file_directory)
+        solved_state, solved = read_state_from_text_file("algorithms/solved")
+        for face in range(6):
+            for row in range(3):
+                for column in range(3):
+                    if [face, row, column] not in oll_indices:
+                        state[face][row][column] = solved_state[face][row][column]
+        write_state_to_text_file(state, algorithm)
 
