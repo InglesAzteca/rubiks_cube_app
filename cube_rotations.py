@@ -10,9 +10,23 @@ class CubeRotations:
     def set_cube_state(self, cube_state):
         self.cube_state = cube_state
 
+    def simulate_cube_rotation_with_list_of_centres(self, list_of_centres, x_y_z, prime=1, amount=1):
+        if x_y_z == 'x':
+            face_coordinates = [[0, 2], [2, 5], [5, 4]]
+        elif x_y_z == 'y':
+            face_coordinates = [[1, 2], [2, 3], [3, 4]]
+        elif x_y_z == 'z':
+            face_coordinates = [[0, 1], [1, 5], [5, 3]]
+
+        for number_of_rotations in range(amount):
+            # if prime equals -1 the values in the list are reversed
+            for r in face_coordinates[::prime]:
+                r = r[::prime]
+                list_of_centres[r[0]], list_of_centres[r[1]] = list_of_centres[r[1]], list_of_centres[r[0]]
+        return list_of_centres
+
     def rotate_cube(self, x_y_z, prime=1, amount=1):
         """Simulates a rotation of the cube."""
-        print(x_y_z, prime, amount)
         cube_state_copy = create_cube_copy(self.cube_state)
 
         x_rotation_details = {"face_coordinates": [[0, 2], [2, 5], [5, 4]],
@@ -174,6 +188,43 @@ class CubeRotations:
         elif notation == "d":
             self.rotate_cube("y", -prime, amount)
             self.rotate_face("U", prime, amount)
+
+    def perform_algorithm(self, algorithm):
+        algorithm = algorithm[0]
+        remove = ["(", ")", "[", "]"]
+        cube_rotation_notations = ["x", "y", "z"]
+
+        for character in remove:
+            algorithm = algorithm.replace(character, "")
+
+        algorithm = algorithm.split()
+
+        for notation in algorithm:
+            prime = 1
+            amount = 1
+            if "'" in notation:
+                prime = -1
+                notation = notation.strip("'")
+            if "2" in notation:
+                amount = 2
+                notation = notation.strip("2")
+
+            if notation in cube_rotation_notations:
+                self.rotate_cube(notation, prime, amount)
+            else:
+                self.rotate_face(notation, prime, amount)
+
+    def rotate_cube_to_required_location(self, cube_reference, selected):
+        centre_colors = [cube_reference[face_index][1][1] for face_index in range(1, 5)]
+        color_1_index = centre_colors.index(selected)
+
+        number_of_rotations = [3, 0, 1, 2]
+        self.set_cube_state(cube_reference)
+        self.rotate_cube("y", amount=number_of_rotations[color_1_index])
+        cube_reference = self.cube_state
+
+        return cube_reference
+
 
 
 

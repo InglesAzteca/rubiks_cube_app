@@ -1,0 +1,13 @@
+Algorithm: L' F'
+
+       d d d
+       d y d
+       d d d
+
+d d d  d d d  d d d  d d d
+d o d  d b d  d r d  d g d
+d w d  d d d  d d d  d d d
+
+       d d d
+       b w d
+       d d d

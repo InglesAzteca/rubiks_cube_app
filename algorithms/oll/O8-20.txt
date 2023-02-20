@@ -1,0 +1,14 @@
+Algorithm: M U (R U R' U') M2' (U R U' r')
+Algorithm: (r U R' U') M2' (U R U' R') U' M'
+
+       y d y
+       d y d
+       y d y
+
+d y d  d y d  d y d  d y d  
+o o o  b b b  r r r  g g g  
+o o o  b b b  r r r  g g g  
+
+       w w w
+       w w w
+       w w w

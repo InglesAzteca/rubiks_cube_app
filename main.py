@@ -4,6 +4,7 @@ import customtkinter
 from selected_color_label import SelectedColorLabel
 from algorithm_display import AlgorithmDisplay
 from cube_rotations import CubeRotations
+from selected_pieces import SelectedCrossPieceColor, SelectedF2LPieceColors
 
 from other_functions import *
 
@@ -69,7 +70,7 @@ class ColorPalette:
         self.selected_color = button["color_reference"]
         selected_color_label.update_color(self.selected_color)
 
-    def enable_or_disable_palette_buttons(self, button_references, normal_disable):
+    def enable_or_disable_palette_buttons(self, button_references, normal_disabled):
         """Sets the state of each color palette button to normal/chlickable and
         sets the color to the main color."""
         # gets the button instances from the color palette button's details
@@ -78,21 +79,18 @@ class ColorPalette:
             color_reference = get_dictionary_details(self.palette_details,
                                                      button,
                                                      'color_reference')
-            if normal_disable == "normal":
+            if normal_disabled == "normal":
                 light_or_dark = "light_color"
-            elif normal_disable == "disable":
+            elif normal_disabled == "disabled":
                 light_or_dark = 'dark_color'
 
             fg_color = get_dictionary_details(settings.color_details,
                                               color_reference,
                                               light_or_dark)
-            button.configure(state=normal_disable, fg_color=fg_color)
+            button.configure(state=normal_disabled, fg_color=fg_color)
 
     def change_variable_by(self, button_references, amount):
-        variables = [
-            get_dictionary_details(self.palette_details, button_reference, "variable")
-            for button_reference in button_references
-        ]
+        variables = [get_dictionary_details(self.palette_details, button_reference, "variable") for button_reference in button_references]
         for index in range(len(button_references)):
             reference = button_references[index]
 
@@ -103,7 +101,7 @@ class ColorPalette:
             if new_variable > 0:
                 self.enable_or_disable_palette_buttons(reference, "normal")
             elif new_variable == 0:
-                self.enable_or_disable_palette_buttons(reference, "disable")
+                self.enable_or_disable_palette_buttons(reference, "disabled")
                 self.selected_color = "d"
 
                 selected_color_label.update_color(self.selected_color)
@@ -235,6 +233,8 @@ class StartColorOptionMenu:
 
 class CubeColoring:
     def __init__(self):
+        self.coloring = True
+        self.selection_needed = False
         self.face_frames = {
             'white_face': None,
             'orange_face': None,
@@ -253,10 +253,10 @@ class CubeColoring:
         self.create_edge_indices()
         self.create_corner_indices()
 
-        self.cross_indices = self.create_cross_indices()
-        self.f2l_indices = self.create_f2l_indices()
-        self.oll_indices = self.create_oll_indices()
         self.pll_indices = self.create_pll_indices()
+        self.oll_indices = self.create_oll_indices()
+        self.f2l_indices = self.create_f2l_indices()
+        self.cross_indices = self.create_cross_indices()
 
     def create_face_frames(self, frame):
         """Creates the layout of the cube faces using frames."""
@@ -305,21 +305,47 @@ class CubeColoring:
 
             face_index += 1
 
+    def enable_or_disable_all_tiles(self, normal_disabled):
+        for face in range(6):
+            for row in range(3):
+                for column in range(3):
+                    self.enable_or_disable_tile(face, row, column, normal_disabled)
+
+    def enable_or_disable_tile(self, face_index, row_index, column_index, normal_disabled):
+        # gets the button instances from the color palette button's details
+        button = self.cube_buttons[face_index][row_index][column_index]
+        tile_color = button.cget("fg_color")
+
+        if normal_disabled == "normal":
+            light_or_dark = "light_color"
+        elif normal_disabled == "disabled":
+            light_or_dark = 'dark_color'
+
+        fg_color = get_dictionary_details(settings.color_details,
+                                          tile_color,
+                                          light_or_dark)
+        button.configure(state=normal_disabled, fg_color=fg_color)
+
     def button_event(self, face_index, row_index, column_index):
         """Colors an individual tiles according to the arguments passed in."""
-        cube_reference_copy = create_cube_copy(self.cube_reference)
-        is_centre_tile = (row_index == 1) and (column_index == 1)
+        if self.coloring:
+            cube_reference_copy = create_cube_copy(self.cube_reference)
+            is_centre_tile = (row_index == 1) and (column_index == 1)
 
-        # ensures a color has been selected and that it is not the centre tile.
-        # if not is_centre_tile:
-        cube_reference_copy[face_index][row_index][
-            column_index] = color_palette.selected_color
+            # ensures a color has been selected and that it is not the centre tile.
+            if not is_centre_tile:
+                cube_reference_copy[face_index][row_index][
+                    column_index] = color_palette.selected_color
 
-        will_affect = self.will_tile_coloring_affect_checkboxes(cube_reference_copy)
-        if will_affect != "Not affected":
-            checkboxes.change_checkbox_states(will_affect)
+                will_affect = self.will_tile_coloring_affect_checkboxes(cube_reference_copy)
+                if will_affect != "Not affected":
+                    checkboxes.change_checkbox_states(will_affect)
 
-        self.color_tiles(cube_reference_copy)
+                self.color_tiles(cube_reference_copy)
+        else:
+            if self.selection_needed:
+                solve_cube.set_selected_piece(face_index, row_index, column_index)
+
 
     def color_tiles(self, copy_of_cube_reference):
         """Uses a modified copy of the cube coloring reference list, colors the
@@ -352,14 +378,20 @@ class CubeColoring:
         self.cube_reference = copy_of_cube_reference  # updates the coloring reference
 
         if self.is_cube_colored(self.cube_reference):
-            solve.enable_or_disable_solve_button("normal")
+            self.coloring = False
+            self.selection_needed = solve_cube.disable_tiles_if_required()
+            if not self.selection_needed:
+                solve.enable_or_disable_solve_button("normal")
         else:
-            pass
-            solve.enable_or_disable_solve_button("disable")
+            self.coloring = True
+            solve.enable_or_disable_solve_button("disabled")
 
     def color_section(self, section, cube_reference_copy, add_remove):
         section_dictionary = {"cross": self.cross_indices,
-                              "f2l": self.f2l_indices, "oll": self.oll_indices}
+                              "f2l": self.f2l_indices,
+                              "oll": [oll_index for
+                                      oll_index in self.oll_indices if
+                                      oll_index not in self.pll_indices]}
 
         for face, row, column in section_dictionary[section]:
             if add_remove == "remove":
@@ -397,12 +429,7 @@ class CubeColoring:
 
         for key in rotation_details.keys():
             if key == start_color:
-                # passes in the default color order and returns a list after the rotations have been performed
-                cube_rotations.set_cube_state(cube_reference_copy)
-                cube_rotations.rotate_cube(*rotation_details[key])
-
-                cube_reference_copy = create_cube_copy(cube_rotations.cube_state)
-                color_order = self.get_centre_tile_colors(cube_reference_copy)
+                color_order = cube_rotations.simulate_cube_rotation_with_list_of_centres(default_color_order, *rotation_details[key])
                 break
 
         for face_index in range(6):
@@ -447,10 +474,10 @@ class CubeColoring:
         self.color_tiles(cube_reference_copy)
 
     def will_tile_coloring_affect_checkboxes(self, cube_reference_copy):
-        are_colored_before = [self.is_cross_colored(self.cube_reference), self.is_f2l_colored(self.cube_reference),
-                              self.is_oll_colored(self.cube_reference)]
-        are_colored_after = [self.is_cross_colored(cube_reference_copy), self.is_f2l_colored(cube_reference_copy),
-                             self.is_oll_colored(cube_reference_copy)]
+        are_colored_before = [self.is_cross_solved(self.cube_reference), self.is_f2l_solved(self.cube_reference),
+                              self.is_oll_solved(self.cube_reference)]
+        are_colored_after = [self.is_cross_solved(cube_reference_copy), self.is_f2l_solved(cube_reference_copy),
+                             self.is_oll_solved(cube_reference_copy)]
         if are_colored_before == are_colored_after:
             return "Not affected"
         else:
@@ -474,9 +501,9 @@ class CubeColoring:
     def required_check_box_state_coloring(self, required_states):
         check_box_names = get_dictionary_details(checkboxes.checkbox_details,
                                                  return_value="name")
-        are_colored = [self.is_cross_colored(self.cube_reference),
-                       self.is_f2l_colored(self.cube_reference),
-                       self.is_oll_colored(self.cube_reference)]
+        are_colored = [self.is_cross_solved(self.cube_reference),
+                       self.is_f2l_solved(self.cube_reference),
+                       self.is_oll_solved(self.cube_reference)]
 
         for index in range(3):
             cube_reference_copy = create_cube_copy(self.cube_reference)
@@ -588,8 +615,9 @@ class CubeColoring:
 
     def create_oll_indices(self):
         face = 0
-        oll_indices = [[face, row, column] for row in range(3) for column in
+        top_face_indices = [[face, row, column] for row in range(3) for column in
                        range(3)]
+        oll_indices = top_face_indices + self.pll_indices
         return oll_indices
 
     def create_pll_indices(self):
@@ -598,7 +626,7 @@ class CubeColoring:
 
         return pll_indices
 
-    def is_cross_colored(self, cube_reference):
+    def is_cross_solved(self, cube_reference):
         for indices in self.cross_indices:
             face, row, column = indices
             centre_color = cube_reference[face][1][1]
@@ -606,7 +634,7 @@ class CubeColoring:
                 return False
         return True
 
-    def is_f2l_colored(self, cube_reference):
+    def is_f2l_solved(self, cube_reference):
         for indices in self.f2l_indices:
             face, row, column = indices
             centre_color = cube_reference[face][1][1]
@@ -614,11 +642,19 @@ class CubeColoring:
                 return False
         return True
 
-    def is_oll_colored(self, cube_reference):
+    def is_oll_solved(self, cube_reference):
         for row in cube_reference[0]:
             output = len(set(row)) == 1
             if not output:
                 return output
+        return output
+
+    def is_pll_solved(self, cube_reference):
+        for face in cube_reference:
+            for row in face:
+                output = len(set(row)) == 1
+                if not output:
+                    return output
         return output
 
     def is_cube_colored(self, cube_reference):
@@ -652,18 +688,18 @@ class SolveButton:
         self.solve_button.grid(row=0, column=0, padx=16, pady=16)
 
     def solve_event(self):
-        print(determine_algorithm.search_through_pll_algorithms(cube_coloring.cube_reference))
+        solve_cube.solve_section()
 
-    def enable_or_disable_solve_button(self, normal_disable):
-        if normal_disable == "normal":
+    def enable_or_disable_solve_button(self, normal_disabled):
+        if normal_disabled == "normal":
             light_or_dark = "light_color"
             new_text = self.get_stage_text()
-        elif normal_disable == "disable":
+        elif normal_disabled == "disabled":
             light_or_dark = 'dark_color'
             new_text = "Solve"
 
         fg_color = get_dictionary_details(settings.color_details,  "d", light_or_dark)
-        self.solve_button.configure(state=normal_disable, fg_color=fg_color, text=new_text)
+        self.solve_button.configure(state=normal_disabled, fg_color=fg_color, text=new_text)
 
     def get_stage_text(self):
         stage_names = ["Cross", "F2L", "OLL", "PLL"]
@@ -681,25 +717,153 @@ class DetermineAlgorithm:
     def __init__(self):
         pass
 
-    def get_next_stage(self):
-        are_solved = [cube_coloring.is_cross_colored(cube_coloring.cube_reference),
-                      cube_coloring.is_f2l_colored(cube_coloring.cube_reference),
-                      cube_coloring.is_oll_colored(cube_coloring.cube_reference),
-                      cube_coloring.is_cube_colored(cube_coloring.cube_reference)]
-        stage_names = ["cross", "f2l", "oll", "pll", "solved"]
+    def determine_cross_piece_details_from_state(self, state, from_file):
+        indices = cube_coloring.edge_indices["bottom"] + cube_coloring.edge_indices["middle"] + cube_coloring.edge_indices["top"]
 
-        for index in range(4):
-            is_solved = are_solved[index]
-            next_stage_name = stage_names[index + 1]
-            if not is_solved:
-               next_stage = next_stage_name
-            else:
-                next_stage = stage_names[0]
+        edge_details = {"selected": [], "location": 0, "cross_color": state[5][1][1], "colors": []}
+        if from_file:
+            edge_details["selected"] = ["b", "w"]
+        else:
+            edge_details["selected"] = solve_cube.selected_cross_piece
+
+        for tile_indices in indices:
+            colors = []
+            for face, row, column in tile_indices:
+                colors.append(state[face][row][column])
+            sorted_colors = colors[:]
+            sorted_colors.sort()
+            sorted_selected = edge_details["selected"][:]
+            sorted_selected.sort()
+            if sorted_colors == sorted_selected:
+                edge_details["location"] = indices.index(tile_indices) + 1
+                edge_details["colors"] = colors
+        return edge_details
+
+    def compare_to_cross_algorithm_state(self, cube_reference, algorithm_state):
+        algorithm_state_cross_piece_details = self.determine_cross_piece_details_from_state(
+            algorithm_state, True)
+
+        cube_reference_cross_piece_details = self.determine_cross_piece_details_from_state(
+            cube_reference, False)
+
+        alg_location = algorithm_state_cross_piece_details["location"]
+        ref_location = cube_reference_cross_piece_details["location"]
+
+        alg_cross_color = algorithm_state_cross_piece_details["cross_color"]
+        ref_cross_color = cube_reference_cross_piece_details["cross_color"]
+
+        alg_colors = algorithm_state_cross_piece_details["colors"]
+        ref_colors = cube_reference_cross_piece_details["colors"]
+
+        is_piece_oriented_the_same = alg_colors.index(alg_cross_color) == ref_colors.index(ref_cross_color)
+        if ref_location == alg_location and is_piece_oriented_the_same:
+            return True
+        else:
+            return False
+
+    def search_through_cross_algorithms(self, cube_reference):
+        cross_file_list = get_file_list_from_folder("algorithms\\cross")
+
+        for index in range(len(cross_file_list)):
+            algorithm_state, algorithm = read_state_from_text_file(
+                cross_file_list[index])
+            if self.compare_to_cross_algorithm_state(cube_reference,
+                                                     algorithm_state):
+                return algorithm
+
+        return "No algorithms found."
+
+    def determine_f2l_pair_details_from_state(self, state, from_file):
+        f2l_pair_details = [
+            {"name": "corner", "selected": [], "location": 0,
+             "colors": []},
+            {"name": "edge", "selected": [], "location": 0,
+             "colors": []}]
+        if from_file:
+            f2l_pair_details[0]["selected"] = ["w", "b", "r"]
+            f2l_pair_details[0]["selected"] = ["b", "r"]
+        else:
+            f2l_pair_details[0]["selected"] = [cube_coloring.cube_reference[5][1][1]] + solve_cube.selected_f2l_pair
+            f2l_pair_details[0]["selected"] = solve_cube.selected_f2l_pair
+
+        corner_indices = cube_coloring.corner_indices["top"] + [[[5, 0, 2], [2, 2, 2], [3, 2, 0]]]
+        edge_indices = cube_coloring.edge_indices["top"] + [[[2, 1, 2], [3, 1, 0]]]
+        indices = [corner_indices, edge_indices]
+
+        for index in range(2):
+            piece = f2l_pair_details[index]
+            for tile_indices in indices[index]:
+                colors = []
+                for face, row, column in tile_indices:
+                    colors.append(state[face][row][column])
+                sorted_colors = colors[:]
+                sorted_colors.sort()
+                sorted_selected = piece["selected"][:]
+                sorted_selected.sort()
+                if sorted_colors == sorted_selected:
+                    piece["location"] = indices[index].index(tile_indices) + 1
+                    piece["colors"] = colors
+        return f2l_pair_details
+
+    def compare_to_f2l_algorithm_state(self, cube_reference, algorithm_state):
+        algorithm_state_f2l_details = self.determine_f2l_pair_details_from_state(algorithm_state, True)
         
-        return next_stage
+        cube_reference = cube_rotations.rotate_cube_to_required_location(cube_reference, solve_cube.selected_f2l_pair[0])
 
-    def search_stage_algorithms(self):
-        pass
+        for u_turn in range(3):
+            cube_reference_f2l_details = self.determine_f2l_pair_details_from_state(cube_reference, False)
+            if cube_reference_f2l_details == algorithm_state_f2l_details:
+                return True
+            else:
+                cube_rotations.set_cube_state(cube_reference)
+                cube_rotations.rotate_face("U")
+                cube_reference = cube_rotations.cube_state
+        return False
+
+    def search_through_f2l_algorithms(self, cube_reference):
+        f2l_file_list = get_file_list_from_folder("algorithms\\f2l")
+
+        for index in range(len(f2l_file_list)):
+            algorithm_state, algorithm = read_state_from_text_file(
+                f2l_file_list[index])
+            if self.compare_to_f2l_algorithm_state(cube_reference,
+                                                   algorithm_state):
+                return algorithm
+
+        return "No algorithms found."
+
+    def calculate_oll_color_order(self, state):
+        oll_color_list = [state[face][row][column] for
+                          face, row, column in cube_coloring.oll_indices]
+
+        color_order = [y for y in range(len(oll_color_list)) if oll_color_list[y] == "y"]
+
+        return color_order
+
+    def compare_to_oll_algorithm_state(self, cube_reference, algorithm_state):
+        algorithm_color_order = self.calculate_oll_color_order(algorithm_state)
+
+        for u_turn in range(3):
+            color_order = self.calculate_oll_color_order(cube_reference)
+
+            if color_order == algorithm_color_order:
+                return True
+            else:
+                cube_rotations.set_cube_state(cube_reference)
+                cube_rotations.rotate_face("U")
+                cube_reference = cube_rotations.cube_state
+        return False
+
+    def search_through_oll_algorithms(self, cube_reference):
+        oll_file_list = get_file_list_from_folder("algorithms\\oll")
+
+        for index in range(len(oll_file_list)):
+            algorithm_state, algorithm = read_state_from_text_file(oll_file_list[index])
+            if self.compare_to_oll_algorithm_state(cube_reference,
+                                                   algorithm_state):
+                return algorithm
+
+        return "No algorithms found."
 
     def calculate_pll_color_order(self, state):
         pll_color_list = [state[face][row][column] for
@@ -735,13 +899,9 @@ class DetermineAlgorithm:
                         if color_order == algorithm_color_order:
                             return True
 
-                display_cube(cube_reference)
-
                 cube_rotations.set_cube_state(cube_reference)
                 cube_rotations.rotate_face("U")
                 cube_reference = cube_rotations.cube_state
-
-                display_cube(cube_reference)
         return False
 
     def search_through_pll_algorithms(self, cube_reference):
@@ -755,6 +915,187 @@ class DetermineAlgorithm:
         return "No algorithms found."
 
 
+class SolveCube:
+    def __init__(self):
+        self.selected_tile_index = []
+        self.selected_f2l_pair = []
+        self.selected_cross_piece = []
+        self.next_stage = "cross"
+        # self.cross_disable_list = self.create_cross_disable_list()
+        # self.f2l_disable_list = self.create_f2l_disable_list()
+
+    def update_next_stage(self):
+        are_solved = [
+            cube_coloring.is_cross_solved(cube_coloring.cube_reference),
+            cube_coloring.is_f2l_solved(cube_coloring.cube_reference),
+            cube_coloring.is_oll_solved(cube_coloring.cube_reference),
+            cube_coloring.is_pll_solved(cube_coloring.cube_reference)
+        ]
+        stage_names = ["cross", "f2l", "oll", "pll", "solved"]
+        for index in range(4):
+            is_solved = are_solved[index]
+            if not is_solved:
+                self.next_stage = stage_names[index]
+                break
+        self.next_stage = stage_names[-1]
+
+    def create_cross_disable_list(self):
+        disable_list = cube_coloring.cross_indices
+        disable_list.remove([5, 1, 1])
+        return disable_list
+
+    def create_f2l_disable_list(self):
+        disable_list = cube_coloring.f2l_indices
+        centre_index_reference = [[face, 1, 1] for face in range(1, 5)]
+        for index_reference in  centre_index_reference:
+            disable_list.remove(index_reference)
+        return disable_list
+
+    def disable_tiles_that_are_not_in_cross_or_solved(self):
+        cube_coloring.enable_or_disable_all_tiles("normal")
+        cross_disable_list = []
+        for index_1, index_2 in cube_coloring.edge_indices["bottom"]:
+            face_1, row_1, column_1 = index_1
+            face_2, row_2, column_2 = index_2
+
+            face_1_color = cube_coloring.cube_reference[face_1][1][1]
+            face_2_color = cube_coloring.cube_reference[face_2][1][1]
+
+            tile_color_1 = cube_coloring.cube_reference[face_1][row_1][column_1]
+            tile_color_2 = cube_coloring.cube_reference[face_2][row_2][column_2]
+
+            if [tile_color_1, tile_color_2] != [face_1_color, face_2_color]:
+                cross_disable_list.append(index_1)
+                cross_disable_list.append(index_2)
+
+        self.disable_tiles_not_in_list(cross_disable_list)
+
+    def disable_tiles_that_are_not_in_f2l_or_solved(self):
+        cube_coloring.enable_or_disable_all_tiles("normal")
+        f2l_disable_list = []
+
+        for index in range(4):
+            edge_tile_1, edge_tile_2 = cube_coloring.edge_indices["middle"][index]
+            corner_tile_1, corner_tile_2, corner_tile_3 = cube_coloring.corner_indices["bottom"][index]
+
+            f2l_tiles = [edge_tile_1, edge_tile_2, corner_tile_1, corner_tile_2, corner_tile_3]
+
+            for face, row, column in f2l_tiles:
+                if cube_coloring.cube_reference[face][row][column] != cube_coloring.cube_reference[face][1][1]:
+                    f2l_disable_list += f2l_tiles
+                    break
+
+        self.disable_tiles_not_in_list(f2l_disable_list)
+
+    def disable_tiles_if_required(self):
+        self.update_next_stage()
+        if self.next_stage == "cross":
+            self.disable_tiles_that_are_not_in_cross_or_solved()
+            return True
+        elif self.next_stage == "f2l":
+            self.disable_tiles_that_are_not_in_f2l_or_solved()
+            return True
+        else:
+            return False
+
+    def disable_tiles_not_in_list(self, list_of_indices):
+        remove_button = get_dictionary_details(color_palette.palette_details,
+                                               "remove_button", "button")
+        color_palette.enable_or_disable_palette_buttons([remove_button],
+                                                        "disabled")
+
+        for face in range(6):
+            for row in range(3):
+                for column in range(3):
+                    if [face, row, column] not in list_of_indices:
+                        cube_coloring.enable_or_disable_tile(face, row, column,
+                                                             "disabled")
+
+    def set_selected_piece(self, face, row, column):
+        self.selected_tile_index = [face, row, column]
+        if self.next_stage == "cross":
+            self.set_selected_cross_piece()
+        elif self.next_stage == "f2l":
+            self.set_selected_f2l_piece()
+
+    def set_selected_cross_piece(self):
+        self.selected_cross_piece = []
+        for edge in cube_coloring.edge_indices["bottom"]:
+            if self.selected_tile_index in edge:
+                tile_1, tile_2 = edge
+                face_1, row_1, column_1 = tile_1
+                face_2, row_2, column_2 = tile_2
+                color_1 = cube_coloring.cube_reference[face_1][1][1]
+                color_2 = cube_coloring.cube_reference[face_2][1][1]
+
+                self.selected_cross_piece.append(color_1)
+                self.selected_cross_piece.append(color_2)
+
+        rotated_cube = cube_rotations.rotate_cube_to_required_location(
+            cube_coloring.cube_reference, color_1)
+        cube_coloring.color_tiles(rotated_cube)
+
+        solve.enable_or_disable_solve_button("normal")
+
+    def set_selected_f2l_piece(self):
+        self.selected_f2l_pair = []
+        for index in range(4):
+            f2l_edges = cube_coloring.edge_indices["middle"]
+            f2l_corners = cube_coloring.corner_indices["bottom"][:]
+            f2l_corners.insert(0, f2l_corners.pop())
+
+            if self.selected_tile_index in f2l_edges[index] or self.selected_tile_index in f2l_corners[index]:
+                tile_1, tile_2 = f2l_edges[index]
+
+                color_1 = cube_coloring.cube_reference[tile_1[0]][1][1]
+                color_2 = cube_coloring.cube_reference[tile_2[0]][1][1]
+
+                self.selected_f2l_pair.append(color_1)
+                self.selected_f2l_pair.append(color_2)
+
+        # face, row, column = self.selected_tile_index
+        # f2l_color_1 = cube_coloring.cube_reference[face][1][1]
+        #
+        # if column == 2:
+        #     f2l_color_2 = cube_coloring.cube_reference[(face + 1) % 5][1][1]
+        #     self.selected_f2l_pair.append(f2l_color_1)
+        #     self.selected_f2l_pair.append(f2l_color_2)
+        # elif column == 0:
+        #     new_face = face - 1
+        #     if new_face == 0:
+        #         new_face = 4
+        #     f2l_color_2 = cube_coloring.cube_reference[new_face][1][1]
+        #     self.selected_f2l_pair.append(f2l_color_2)
+        #     self.selected_f2l_pair.append(f2l_color_1)
+
+        rotated_cube = cube_rotations.rotate_cube_to_required_location(
+            cube_coloring.cube_reference, self.selected_f2l_pair[0])
+        cube_coloring.color_tiles(rotated_cube)
+
+        solve.enable_or_disable_solve_button("normal")
+
+    def solve_section(self):
+        stage = self.next_stage
+        if stage == "cross":
+            algorithm = determine_algorithm.search_through_cross_algorithms(cube_coloring.cube_reference)
+        elif stage == "f2l":
+            algorithm = determine_algorithm.search_through_f2l_algorithms(cube_coloring.cube_reference)
+        elif stage == "oll":
+            algorithm = determine_algorithm.search_through_pll_algorithms(cube_coloring.cube_reference)
+        elif stage == "pll":
+            algorithm = determine_algorithm.search_through_pll_algorithms(cube_coloring.cube_reference)
+        else:
+            algorithm = "Solved"
+
+        algorithm_display.change_algorithm(algorithm)
+
+        if algorithm != "No algorithms found." and algorithm != "Solved":
+            cube_rotations.set_cube_state(cube_coloring.cube_reference)
+            cube_rotations.perform_algorithm(algorithm)
+
+            cube_coloring.color_tiles(cube_rotations.cube_state)
+
+            self.disable_tiles_if_required()
 
 
 
@@ -770,6 +1111,9 @@ determine_algorithm = DetermineAlgorithm()
 cube_rotations = CubeRotations(cube_coloring.cube_reference,
                                cube_coloring.edge_indices,
                                cube_coloring.corner_indices)
+selected_cross_piece_label = SelectedCrossPieceColor()
+selected_f2l_piece_label = SelectedF2LPieceColors()
+solve_cube = SolveCube()
 
 
 class RubiksApp(customtkinter.CTk):
@@ -811,6 +1155,12 @@ class RubiksApp(customtkinter.CTk):
 
         checkboxes.create_checkboxes(self.left_frame)
 
+        selected_cross_piece_label.create_label_frame(self.left_frame)
+        selected_cross_piece_label.create_selected_cross_label(selected_cross_piece_label.label_frame)
+
+        selected_f2l_piece_label.create_label_frame(self.left_frame)
+        selected_f2l_piece_label.create_selected_f2l_label(selected_f2l_piece_label.label_frame)
+
         # =============== color palette frame ==============
 
         # add buttons for color palette argument = list of dictionaries
@@ -827,8 +1177,8 @@ class RubiksApp(customtkinter.CTk):
         # ============ solve frame =============================
 
         solve.create_solve_button(self.solve_frame)
+        solve.enable_or_disable_solve_button("disabled")
         algorithm_display.create_label(self.solve_frame)
-
 
     def on_closing(self, event=0):
         self.destroy()

@@ -381,3 +381,52 @@ def get_section_indices_required_states_and_name(self, indices):
             #             print(color_order)
             #             print()
             #     color_order.append(color_order.pop(0))
+
+def remove_items_from_disable_list(self):
+    if self.next_stage == "cross":
+        for edge in cube_coloring.edge_indices["bottom"]:
+            if self.selected_tile_index in edge:
+                for tile in edge:
+                    self.cross_disable_list.remove(tile)
+        self.selected_cross_piece = []
+    elif self.next_stage == "f2l":
+        edge_indices = cube_coloring.edge_indices["middle"][:]
+        corner_indices = cube_coloring.corner_indices["bottom"][:]
+        corner_indices["bottom"].insert(0, corner_indices["bottom"].pop())
+
+        for index in range(4):
+            if self.selected_tile_index in edge_indices[index] or self.selected_tile_index in corner_indices[index]:
+                for tile in edge_indices[index]:
+                    self.f2l_disable_list.remove(tile)
+                for tile in corner_indices[index]:
+                    self.f2l_disable_list.remove(tile)
+
+        self.selected_f2l_pair = []
+
+    self.selected_tile_index = []
+    self.update_next_stage()
+
+    def shift_disabled(self, disabled_list):
+        face_of_selected = self.selected_cross_piece[0]
+        centre_colors = cube_coloring.get_centre_tile_colors(cube_coloring.cube_reference)
+        for face_index in range(len(centre_colors)):
+            if face_of_selected == centre_colors[face_index]:
+                for index in range(len(self.cross_disable_list)):
+                    if face_index == 1:
+                        self.cross_disable_list
+                    elif face_index == 2:
+                        shift = 0
+                    elif face_index == 3:
+                        shift = 3
+                    elif face_index == 4:
+                        shift = 2
+
+                    cross_disabled_list = self.create_cross_disable_list()
+
+        shift_face = (face_of_selected + 1) % 5
+        pass
+
+    def get_edge_tile_indices_with_selected_tile(self):
+        for edge in cube_coloring.edge_indices["bottom"]:
+            if self.selected_tile_index in edge:
+                return edge

@@ -1,0 +1,13 @@
+Algorithm: D2' B D2'
+
+       d d d
+       d y d
+       d d d
+
+d d d  d d d  d d d  d d d
+w o d  d b d  d r d  d g b
+d d d  d d d  d d d  d d d
+
+       d d d
+       d w d
+       d d d

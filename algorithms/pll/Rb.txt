@@ -6,9 +6,9 @@ Algorithm: (R' U2 R' D') (R U' R' D) (R U R U') (R' U' R) [U']
        y y y
 
 o b b  r g r  g r o  b o g  
-d d d  d d d  d d d  d d d  
-d d d  d d d  d d d  d d d  
+b b b  r r r  g g g  o o o  
+b b b  r r r  g g g  o o o  
 
-       d d d
-       d d d
-       d d d
+       w w w
+       w w w
+       w w w

@@ -1,0 +1,13 @@
+Algorithm: y (R U2 R') y' F2
+
+       d d d
+       d y d
+       d d d
+
+d d d  d d d  d d d  d d d
+d o d  d b d  d r w  b g d
+d d d  d d d  d d d  d d d
+
+       d d d
+       d w d
+       d d d

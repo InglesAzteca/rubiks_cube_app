@@ -6,9 +6,9 @@ Algorithm: y x' (R U' R) D2 (R' U R) D2 R2' x
        y y y
 
 g b b  r r g  o g o  b o r  
-d d d  d d d  d d d  d d d  
-d d d  d d d  d d d  d d d  
+b b b  r r r  g g g  o o o  
+b b b  r r r  g g g  o o o  
 
-       d d d
-       d d d
-       d d d
+       w w w
+       w w w
+       w w w

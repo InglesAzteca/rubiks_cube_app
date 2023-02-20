@@ -27,8 +27,7 @@ import other_functions
 # print(c.f2l_indices)
 from cube_rotations import CubeRotations
 from other_functions import *
-from main import CubeColoring
-cube_coloring = CubeColoring()
+
 # edge = cube_coloring.edge_indices
 # corner = cube_coloring.corner_indices
 #
@@ -45,7 +44,42 @@ cube_coloring = CubeColoring()
 # with open(l[0], "r") as f:
 #     print(f.readlines())
 
-change_bottom_two_rows_on_cube(get_file_list_from_folder("algorithms\\pll"), cube_coloring.oll_indices)
+# change_bottom_two_rows_on_cube(get_file_list_from_folder("algorithms\\pll"), cube_coloring.pll_indices)
+# pll_indices = cube_coloring.pll_indices
+# state, algorithms = read_state_from_text_file("algorithms/pll/Aa.txt")
+# solved_state, solved_algorithm = read_state_from_text_file("algorithms/solved")
+# print(pll_indices)
+# for face in range(6):
+#     for row in range(3):
+#         for column in range(3):
+#             if [face, row, column] not in pll_indices:
+#                 state[face][row][column] = solved_state[face][row][column]
+# display_cube(state)
+# write_state_to_text_file(state, "algorithms/pll/Aa.txt", algorithms)
+# from main import DetermineAlgorithm, CubeColoring
+# from other_functions import display_cube, read_state_from_text_file
+# c = CubeColoring()
+# d = DetermineAlgorithm()
+# cube_reference, alg = read_state_from_text_file("algorithms/solved")
+#
+# display_cube(cube_reference)
+# display_cube(d.rotate_f2l_to_required_location(cube_reference))
+# vowels list
+
+# from main import CubeColoring
+#
+# c = CubeColoring()
+# print(c.edge_indices["middle"])
+# c.corner_indices["bottom"].insert(0, c.corner_indices["bottom"].pop())
+# print(c.corner_indices["bottom"])
+#
+# print(c.edge_indices["bottom"])
+
+l = [1]
+if not l:
+    print("x")
+
+
 
 
 

@@ -6,8 +6,8 @@ Algorithm: (R' U L' U2 R U' L) (R' U L' U2 R U' L) [U]
        y y y
 
 g g b  r r o  b b g  o o r  
-b b b  r r r  g g g  o o o
-b b b  r r r  g g g  o o o
+b b b  r r r  g g g  o o o  
+b b b  r r r  g g g  o o o  
 
        w w w
        w w w

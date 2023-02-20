@@ -1,0 +1,13 @@
+Algorithm: (R' U' F) (U R U' R') F' R
+
+       d y y
+       d y y
+       d d y
+
+d y d  y y d  d d d  d d y  
+o o o  b b b  r r r  g g g  
+o o o  b b b  r r r  g g g  
+
+       w w w
+       w w w
+       w w w

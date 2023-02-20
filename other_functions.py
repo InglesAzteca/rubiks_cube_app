@@ -93,8 +93,8 @@ def rename_text_file(folder_path, old_name, new_name):
     os.rename(folder_path + old_name, folder_path + new_name)
 
 
-def write_state_to_text_file(cube_reference, file_path, *algorithms):
-    file = open(file_path, "a")
+def write_state_to_text_file(cube_reference, file_path, algorithms):
+    file = open(file_path, "w")
     for algorithm in algorithms:
         file.write(f"Algorithm: {algorithm}\n")
     file.write("\n")
@@ -155,16 +155,14 @@ def get_file_list_from_folder(directory):
     return file_list
 
 
-def change_bottom_two_rows_on_cube(file_list, oll_indices):
-    print(file_list)
-    print(oll_indices)
+def change_bottom_two_rows_on_cube(file_list, pll_indices):
     for file_directory in file_list:
         state, algorithm = read_state_from_text_file(file_directory)
         solved_state, solved = read_state_from_text_file("algorithms/solved")
         for face in range(6):
             for row in range(3):
                 for column in range(3):
-                    if [face, row, column] not in oll_indices:
+                    if [face, row, column] not in pll_indices:
                         state[face][row][column] = solved_state[face][row][column]
-        write_state_to_text_file(state, algorithm)
+        write_state_to_text_file(state, file_directory, algorithm)
 
