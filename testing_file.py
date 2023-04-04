@@ -1,17 +1,21 @@
-# from main import DetermineAlgorithm, read_state_from_text_file
-#
-# c, a = read_state_from_text_file("algorithms/solved")
-#
-# d = DetermineAlgorithm()
-#
-# alg = d.search_through_f2l_algorithms(c)
-# print(alg)
+import customtkinter
 
-from main import CubeColoring
+from view import View
+from controller import Controller
+from model import Model
 
-c = CubeColoring()
-print(c.edge_indices["top"] + c.edge_indices["middle"])
 
-# x = ["U2"]
-# y = x[0].replace("1", "")
-# print(y)
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.tab_view = View(master=self)
+        self.tab_view.grid(row=0, column=0)
+
+        self.model = Model()
+
+        self.controller = Controller(self.model, self.tab_view)
+
+
+app = App()
+app.mainloop()

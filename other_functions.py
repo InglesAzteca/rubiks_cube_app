@@ -51,6 +51,11 @@ def create_cube_representation(default_value):
              range(rows)] for face in range(faces)]
 
 
+def create_solved_cube():
+    cube = [[["y"]*3]*3, [["r"]*3]*3, [["g"]*3]*3, [["o"]*3]*3, [["b"]*3]*3, [["w"]*3]*3]
+    return create_cube_copy(cube)
+
+
 def order_colors(order):
     """Returns a ordered copy of the color details."""
 

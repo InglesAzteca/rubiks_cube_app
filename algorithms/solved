@@ -1,12 +1,12 @@
 Algorithm: None
 
-       r r y
-       g y y
-       y y o
+       b r o
+       y y y
+       y y r
 
-b o r  g g y  g o o  b y y
-b b b  r r r  g g b  y o o
-b b b  r r r  g g o  w o o
+o b b  r r g  y o y  g g y
+b b b  r r y  g g g  o o o
+b b b  r r w  r g g  o o o
 
        w w g
        w w w
