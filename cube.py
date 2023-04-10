@@ -18,6 +18,7 @@ class CubeDetails:
                                                  [-1, -1, -1, -1, 1, -1]],
                                    "face_rotation_amount": [[1, 1, 1, 1, 1, 1],
                                                             [1, 1, 1, 1, 1, 1]]}
+
         self.corner_indices = {'top': None, 'bottom': None}
         self.edge_indices = {'top': None, 'middle': None, 'bottom': None}
         self.cross_indices = []

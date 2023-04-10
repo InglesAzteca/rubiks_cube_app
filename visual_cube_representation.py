@@ -5,6 +5,10 @@ from coloring import color_tiles
 
 
 class CubeRepresentationFrame(customtkinter.CTkFrame):
+    """
+    This class represents the frame containing the visual cube representation,
+    and has the attributes and methods to model it as such.
+    """
     face_frames = {
         'white_face': None,
         'orange_face': None,
@@ -14,6 +18,8 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
         'yellow_face': None
     }
     cube_tile_instances = create_cube_representation(None)
+
+    tile_size = 54
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +49,6 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
 
     def create_and_add_tiles(self):
         """Adds the tiles/buttons to each face frame."""
-        size = 54
         face_index = 0
 
         default_color = get_dictionary_details(settings.color_details, 'd')
@@ -56,8 +61,8 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
                         text='',
                         fg_color=default_color["light_color"],
                         hover_color=default_color["dark_color"],
-                        width=size,
-                        height=size)
+                        width=self.tile_size,
+                        height=self.tile_size)
                     tile.grid(row=row, column=column, padx=4, pady=4)
                     # Adds the button instance to the list representing the cube
                     self.cube_tile_instances[face_index][row][column] = tile
@@ -92,4 +97,7 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
             self.enable_or_disable_tile(face, row, column, "normal")
 
     def update_tile_colors(self, state):
+        """Changes the colours on the button instances representing the cube to
+        reflect the values of the state passed in."""
         color_tiles(self.cube_tile_instances, state)
+

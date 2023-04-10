@@ -18,142 +18,99 @@ def check_box_tile_coloring(self, check_box, add_remove):
                                                        add_remove)
     self.color_tiles(coloring_reference_copy)
 
-    def color_edge_tiles(self, section, coloring_reference_copy, add_remove):
-        """Colors or removes color from the edge tiles of a certain section
-        (top/middle/bottom)."""
+def color_edge_tiles(self, section, coloring_reference_copy, add_remove):
+    """Colors or removes color from the edge tiles of a certain section
+    (top/middle/bottom)."""
 
-        # the edge consists of 2 tiles
-        for tile_1, tile_2 in self.edge_indices[section]:
-            # separates the tiles into their indecies (face index, row index, column index)
-            face_1, row_1, column_1 = tile_1
-            face_2, row_2, column_2 = tile_2
+    # the edge consists of 2 tiles
+    for tile_1, tile_2 in self.edge_indices[section]:
+        # separates the tiles into their indecies (face index, row index, column index)
+        face_1, row_1, column_1 = tile_1
+        face_2, row_2, column_2 = tile_2
 
-            # sets the color to the color of the centre tile
-            if add_remove == 'add':
-                color_1 = coloring_reference_copy[face_1][1][1]
-                color_2 = coloring_reference_copy[face_2][1][1]
-
-            # sets the color to a default value
-            elif add_remove == 'remove':
-                color_1, color_2 = 'd', 'd'
-
-            coloring_reference_copy[face_1][row_1][column_1] = color_1
-            coloring_reference_copy[face_2][row_2][column_2] = color_2
-
-        return coloring_reference_copy
-
-    def color_corner_tiles(self, section, coloring_reference_copy, add_remove):
-        """Colors or removes color from the corner tiles of a certain section
-        (top/bottom)."""
-
-        # a corner consists of 3 tiles.
-        for tile_1, tile_2, tile_3 in self.corner_indices[section]:
-            # separates each tile into their indices (face index, row index, column index)
-            face_1, row_1, column_1 = tile_1
-            face_2, row_2, column_2 = tile_2
-            face_3, row_3, column_3 = tile_3
-
-            # sets the color to the color of the centre tile
-            if add_remove == 'add':
-                color_1 = coloring_reference_copy[face_1][1][1]
-                color_2 = coloring_reference_copy[face_2][1][1]
-                color_3 = coloring_reference_copy[face_3][1][1]
-
-            # sets the color to a default value
-            elif add_remove == 'remove':
-                color_1, color_2, color_3 = 'd', 'd', 'd'
-
-            coloring_reference_copy[face_1][row_1][column_1] = color_1
-            coloring_reference_copy[face_2][row_2][column_2] = color_2
-            coloring_reference_copy[face_3][row_3][column_3] = color_3
-
-        return coloring_reference_copy
-
-    def color_oll_tiles(self, coloring_reference_copy, add_remove):
-        """Colors or removes color from the tiles on the upper face of the cube."""
-
-        # sets color to the centre tile of the upper face.
+        # sets the color to the color of the centre tile
         if add_remove == 'add':
-            color = coloring_reference_copy[0][1][1]
-        # sets color to a default value.
+            color_1 = coloring_reference_copy[face_1][1][1]
+            color_2 = coloring_reference_copy[face_2][1][1]
+
+        # sets the color to a default value
         elif add_remove == 'remove':
-            color = 'd'
+            color_1, color_2 = 'd', 'd'
 
-        for row in range(3):
-            for column in range(3):
-                # if it is not the centre tile (row 1, column 1) we color it.
-                if row != 1 or column != 1:
-                    coloring_reference_copy[0][row][column] = color
+        coloring_reference_copy[face_1][row_1][column_1] = color_1
+        coloring_reference_copy[face_2][row_2][column_2] = color_2
 
-        return coloring_reference_copy
+    return coloring_reference_copy
 
-        # contains rotation details for each color if they were to be the start color
-        rotation_details = {'yellow': ('X', 0),
-                            'white': ('X', 2),
-                            'green': ('X', 1, -1),
-                            'blue': ('X', 1),
-                            'orange': ('Z', 1, -1),
-                            'red': ('Z', 1)
-                            }
-        coloring_reference_copy = self.create_cube_copy(self.coloring_reference)
+def color_corner_tiles(self, section, coloring_reference_copy, add_remove):
+    """Colors or removes color from the corner tiles of a certain section
+    (top/bottom)."""
 
-        for key in rotation_details.keys():
-            if key == start_color:
-                # passes in the default color order and returns a list after the rotations have been performed
-                color_order = self.cube_rotation(default_color_order,
-                                                 *rotation_details[key])
-                break
+    # a corner consists of 3 tiles.
+    for tile_1, tile_2, tile_3 in self.corner_indices[section]:
+        # separates each tile into their indices (face index, row index, column index)
+        face_1, row_1, column_1 = tile_1
+        face_2, row_2, column_2 = tile_2
+        face_3, row_3, column_3 = tile_3
 
-        # colors = self.order_colors(color_order) # returns a copy of the color details in order
+        # sets the color to the color of the centre tile
+        if add_remove == 'add':
+            color_1 = coloring_reference_copy[face_1][1][1]
+            color_2 = coloring_reference_copy[face_2][1][1]
+            color_3 = coloring_reference_copy[face_3][1][1]
 
-        def color_tiles_according_to_check_box_states(self, required_states):
-            """With a list of the check box states this function calls a function
-            to color or remove color from a section of the cube."""
+        # sets the color to a default value
+        elif add_remove == 'remove':
+            color_1, color_2, color_3 = 'd', 'd', 'd'
 
-            # returns the check box's names that are used to identify what sections need to be colored.
-            check_box_names = self.get_dictionary_details(
-                self.check_box_details, return_value='name')
+        coloring_reference_copy[face_1][row_1][column_1] = color_1
+        coloring_reference_copy[face_2][row_2][column_2] = color_2
+        coloring_reference_copy[face_3][row_3][column_3] = color_3
 
-            coloring_reference_copy = self.create_cube_copy(
-                self.coloring_reference)
+    return coloring_reference_copy
 
-            # are_colored = [self.is_cross_colored(), self.is_f2l_colored(), self.is_oll_colored()]
+def color_oll_tiles(self, coloring_reference_copy, add_remove):
+    """Colors or removes color from the tiles on the upper face of the cube."""
 
-            for index in range(len(required_states)):
-                # if the check box state is 0/off color is removed from the tiles.
-                if required_states[index] == 0:
-                    self.color_section(check_box_names[index],
-                                       coloring_reference_copy, 'remove')
+    # sets color to the centre tile of the upper face.
+    if add_remove == 'add':
+        color = coloring_reference_copy[0][1][1]
+    # sets color to a default value.
+    elif add_remove == 'remove':
+        color = 'd'
 
-                # if the check box state is 1/on the tiles are colored.
-                elif required_states[index] == 1:
-                    self.color_section(check_box_names[index],
-                                       coloring_reference_copy, 'add')
+    for row in range(3):
+        for column in range(3):
+            # if it is not the centre tile (row 1, column 1) we color it.
+            if row != 1 or column != 1:
+                coloring_reference_copy[0][row][column] = color
 
+    return coloring_reference_copy
 
-cube = [[['o', 'o', 'y'],
-         ['b', 'y', 'o'],
-         ['b', 'g', 'r']],
+def color_tiles_according_to_check_box_states(self, required_states):
+    """With a list of the check box states this function calls a function
+    to color or remove color from a section of the cube."""
 
-        [['b', 'w', 'w'],
-         ['o', 'o', 'o'],
-         ['b', 'w', 'w']],
+    # returns the check box's names that are used to identify what sections need to be colored.
+    check_box_names = self.get_dictionary_details(
+        self.check_box_details, return_value='name')
 
-        [['r', 'y', 'g'],
-         ['w', 'b', 'r'],
-         ['g', 'b', 'r']],
+    coloring_reference_copy = self.create_cube_copy(
+        self.coloring_reference)
 
-        [['y', 'b', 'g'],
-         ['g', 'r', 'y'],
-         ['g', 'y', 'b']],
+    # are_colored = [self.is_cross_colored(), self.is_f2l_colored(), self.is_oll_colored()]
 
-        [['o', 'y', 'w'],
-         ['b', 'g', 'g'],
-         ['y', 'w', 'y']],
+    for index in range(len(required_states)):
+        # if the check box state is 0/off color is removed from the tiles.
+        if required_states[index] == 0:
+            self.color_section(check_box_names[index],
+                               coloring_reference_copy, 'remove')
 
-        [['o', 'r', 'w'],
-         ['g', 'w', 'r'],
-         ['o', 'r', 'r']]]
+        # if the check box state is 1/on the tiles are colored.
+        elif required_states[index] == 1:
+            self.color_section(check_box_names[index],
+                               coloring_reference_copy, 'add')
+
 
 corners = {'top': [[[0, 0, 0], [1, 0, 0], [4, 0, 2]],
                    [[0, 0, 2], [4, 0, 0], [3, 0, 2]],
@@ -219,7 +176,6 @@ def calculate_corner_parity():
 
     corner_parity = (clockwise + anti_clockwise * 2) % 3
 
-
 def calculate_edge_parity():
     correct = 0
     wrong = 0
@@ -251,7 +207,6 @@ def calculate_edge_parity():
 
     print(correct)
     print(wrong)
-
 
 def determine_edge_parity():
     correct = 0
@@ -293,94 +248,92 @@ def get_section_indices_required_states_and_name(self, indices):
             if indices in section_indices:
                 return section_indices, required_states[index], section_names[index]
 
-    def rotate_cube_x(self, amount=1, prime=1):
-        cube_state_copy = create_cube_copy(self.cube_state)
-        x = [[0, 2], [2, 5], [5, 4]]
+def rotate_cube_x(self, amount=1, prime=1):
+    cube_state_copy = create_cube_copy(self.cube_state)
+    x = [[0, 2], [2, 5], [5, 4]]
 
-        for number_of_rotations in range(amount):
-            # if prime equals -1 the values in the list are reversed
-            for r in x[::prime]:
-                r = r[::prime]
-                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+    for number_of_rotations in range(amount):
+        # if prime equals -1 the values in the list are reversed
+        for r in x[::prime]:
+            r = r[::prime]
+            cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
 
-            self.set_cube_state(cube_state_copy)
-            if prime == 1:
-                self.rotate_tiles_on_face(1, direction=-1)
-                self.rotate_tiles_on_face(3, direction=1)
-                self.rotate_tiles_on_face(4, amount=2)
-                self.rotate_tiles_on_face(5, amount=2)
-            elif prime == -1:
-                self.rotate_tiles_on_face(1)
-                self.rotate_tiles_on_face(3, direction=-1)
-                self.rotate_tiles_on_face(4, amount=2)
-                self.rotate_tiles_on_face(0, amount=2)
+        self.set_cube_state(cube_state_copy)
+        if prime == 1:
+            self.rotate_tiles_on_face(1, direction=-1)
+            self.rotate_tiles_on_face(3, direction=1)
+            self.rotate_tiles_on_face(4, amount=2)
+            self.rotate_tiles_on_face(5, amount=2)
+        elif prime == -1:
+            self.rotate_tiles_on_face(1)
+            self.rotate_tiles_on_face(3, direction=-1)
+            self.rotate_tiles_on_face(4, amount=2)
+            self.rotate_tiles_on_face(0, amount=2)
 
-    def rotate_cube_y(self, amount=1, prime=1):
-        cube_state_copy = create_cube_copy(self.cube_state)
+def rotate_cube_y(self, amount=1, prime=1):
+    cube_state_copy = create_cube_copy(self.cube_state)
 
-        y = [[1, 2], [2, 3], [3, 4]]
+    y = [[1, 2], [2, 3], [3, 4]]
 
-        for number_of_rotations in range(amount):
-            # if prime equals -1 the values in the list are reversed
-            for r in y[::prime]:
-                r = r[::prime]
-                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+    for number_of_rotations in range(amount):
+        # if prime equals -1 the values in the list are reversed
+        for r in y[::prime]:
+            r = r[::prime]
+            cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
 
-            self.set_cube_state(cube_state_copy)
-            if prime == 1:
-                # 1, 2, 3, 4 not affected
-                self.rotate_tiles_on_face(0, direction=1)
-                self.rotate_tiles_on_face(5, direction=-1)
-            elif prime == -1:
-                self.rotate_tiles_on_face(0, direction=-1)
-                self.rotate_tiles_on_face(5, direction=1)
+        self.set_cube_state(cube_state_copy)
+        if prime == 1:
+            # 1, 2, 3, 4 not affected
+            self.rotate_tiles_on_face(0, direction=1)
+            self.rotate_tiles_on_face(5, direction=-1)
+        elif prime == -1:
+            self.rotate_tiles_on_face(0, direction=-1)
+            self.rotate_tiles_on_face(5, direction=1)
 
-    def rotate_cube_z(self, amount=1, prime=1):
-        cube_state_copy = create_cube_copy(self.cube_state)
+def rotate_cube_z(self, amount=1, prime=1):
+    cube_state_copy = create_cube_copy(self.cube_state)
 
+    z = [[0, 1], [1, 5], [5, 3]]
 
-        z = [[0, 1], [1, 5], [5, 3]]
+    for number_of_rotations in range(amount):
+        # if prime equals -1 the values in the list are reversed
+        for r in z[::prime]:
+            r = r[::prime]
+            cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
 
-        for number_of_rotations in range(amount):
-            # if prime equals -1 the values in the list are reversed
-            for r in z[::prime]:
-                r = r[::prime]
-                cube_state_copy[r[0]], cube_state_copy[r[1]] = cube_state_copy[r[1]], cube_state_copy[r[0]]
+        self.set_cube_state(cube_state_copy)
+        if prime == 1:
+            self.rotate_tiles_on_face(0, direction=1)
+            self.rotate_tiles_on_face(1, direction=1)
+            self.rotate_tiles_on_face(2, direction=1)
+            self.rotate_tiles_on_face(3, direction=1)
+            self.rotate_tiles_on_face(4, direction=-1)
+            self.rotate_tiles_on_face(5, direction=1)
+        elif prime == -1:
+            self.rotate_tiles_on_face(0, direction=-1)
+            self.rotate_tiles_on_face(1, direction=-1)
+            self.rotate_tiles_on_face(2, direction=-1)
+            self.rotate_tiles_on_face(3, direction=-1)
+            self.rotate_tiles_on_face(4, direction=1)
+            self.rotate_tiles_on_face(5, direction=-1)
+    for color_shift in range(4):
+        if color_order == ub_color_order:
+            return algorithm
+        else:
+            for face_shift in range(3):
+                for position_list_index in range(len(color_order)):
+                    for position_index in range(3):
+                        position = color_order[position_list_index][position_index]
+                        new_position = (position + 3) % 12
+                        color_order[position_list_index][position_index] = new_position
+                    color_order[position_list_index].sort()
 
-            self.set_cube_state(cube_state_copy)
-            if prime == 1:
-                self.rotate_tiles_on_face(0, direction=1)
-                self.rotate_tiles_on_face(1, direction=1)
-                self.rotate_tiles_on_face(2, direction=1)
-                self.rotate_tiles_on_face(3, direction=1)
-                self.rotate_tiles_on_face(4, direction=-1)
-                self.rotate_tiles_on_face(5, direction=1)
-            elif prime == -1:
-                self.rotate_tiles_on_face(0, direction=-1)
-                self.rotate_tiles_on_face(1, direction=-1)
-                self.rotate_tiles_on_face(2, direction=-1)
-                self.rotate_tiles_on_face(3, direction=-1)
-                self.rotate_tiles_on_face(4, direction=1)
-                self.rotate_tiles_on_face(5, direction=-1)
-
-# for color_shift in range(4):
-            #     if color_order == ub_color_order:
-            #         return algorithm
-            #     else:
-            #         for face_shift in range(3):
-            #             for position_list_index in range(len(color_order)):
-            #                 for position_index in range(3):
-            #                     position = color_order[position_list_index][position_index]
-            #                     new_position = (position + 3) % 12
-            #                     color_order[position_list_index][position_index] = new_position
-            #                 color_order[position_list_index].sort()
-            #
-            #             if color_order == ub_color_order:
-            #                 return algorithm
-            #             print(ub_color_order)
-            #             print(color_order)
-            #             print()
-            #     color_order.append(color_order.pop(0))
+                if color_order == ub_color_order:
+                    return algorithm
+                print(ub_color_order)
+                print(color_order)
+                print()
+        color_order.append(color_order.pop(0))
 
 def remove_items_from_disable_list(self):
     if self.next_stage == "cross":

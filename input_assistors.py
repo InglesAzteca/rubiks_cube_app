@@ -52,35 +52,16 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
         self.menu_instance = customtkinter.CTkOptionMenu(
             master=self,
             values=["White", "Yellow", "Green", "Blue", "Orange", "Red"],
-            command=self.menu_callback,
             variable=self.menu_variable)
         self.menu_instance.grid(row=1, column=0, padx=16, pady=16)
-
-    def menu_callback(self, start_color):
-        """This function is called when the start color has been selected."""
-
-        # enables the buttons if the start color hasn't been selected previously
-        # if self.start_color is None:
-        #     palette_references = get_dictionary_details(
-        #         self.palette_details, return_value="color_reference")
-        #     self.enable_or_disable_palette_buttons(palette_references, "normal")
-        #     self.enable_or_disable_checkboxes("enable")
-        #
-        #     self.cube_coloring.change_centre_tile_colors()
-        #     color_tiles(self.cube_tile_instances, self.cube_coloring.state)
-        #
-        #     self.update_palette_variables()
-        #
-        #     self.start_color = "w"
-        print(start_color)
 
     def create_checkboxes(self):
         """Creates check boxes using a list of dictionaries that contains the
         check box details."""
 
         row = 2
-        for index in range(
-                len(self.checkbox_details)):  # the number of loops depend on the length of the list
+        # the number of loops depend on the length of the list
+        for index in range(len(self.checkbox_details)):
             check_box = self.checkbox_details[index]
 
             check_box['variable'] = tkinter.IntVar()  # add an integer variable
@@ -94,20 +75,6 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
                 offvalue=0)
             check_box['check_box'].grid(row=row, column=0, padx=20, pady=10)
             row += 1
-
-    def checkbox_event(self, variable, required_states):
-        """Calls a coloring function and a function that changes the check box
-        states, when any of the check boxes is clicked."""
-
-        state = variable.get()
-
-        checkbox_names = get_dictionary_details(self.checkbox_details,
-                                                return_value="name")
-        # self.cube_coloring.required_check_box_state_coloring(required_states[state], checkbox_names)
-        # color_tiles(self.cube_tile_instances, self.cube_coloring.state)
-        # self.update_palette_variables()
-
-        self.change_checkbox_states(required_states[state])
 
     def enable_or_disable_checkboxes(self, enable_disable):
         """Sets the state of each toggle button to normal/chlickable."""
@@ -144,3 +111,4 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
                 # if the check box state is 1/on it is set to 0/off
                 elif current == 1:
                     check_boxes[index].deselect()
+

@@ -31,20 +31,33 @@ def color_tiles(cube_tile_instances, cube_reference):
 
 
 def get_cube_reference_from_tile_instances(cube_tile_instances):
+    """
+    This function uses for loops to obtain a cube reference from the 3D list of
+    tile instances.
+
+    :param cube_tile_instances: A 3D list containing the button/tile instances
+    of the visual cube representation.
+    :return: Returns a 3D containing references to the colors on the button
+    instances.
+    """
+    # creates a 3D list with the default value "d"
     cube_reference = create_cube_representation("d")
 
     for face_index in range(6):
         for row_index in range(3):
             for column_index in range(3):
+                # ensures that the tiles have been created
                 if cube_tile_instances[face_index][row_index][column_index] is not None:
-                    tile_instance = cube_tile_instances[face_index][row_index][
-                        column_index]
-                    color = tile_instance.cget("fg_color")
-                    color_reference = get_dictionary_details(
-                        settings.color_details, color, "color_reference")
-                    cube_reference[face_index][row_index][
-                        column_index] = color_reference
 
+                    tile_instance = cube_tile_instances[face_index][row_index][column_index]
+                    # we use .cget() to get the hex color value of the tile
+                    color = tile_instance.cget("fg_color")
+
+                    # we get the color reference using the hex color value
+                    color_reference = get_dictionary_details(settings.color_details, color, "color_reference")
+                    # change the value in the cube_reference to the color
+                    # reference obtained from the tile instance
+                    cube_reference[face_index][row_index][column_index] = color_reference
     return cube_reference
 
 
@@ -56,7 +69,17 @@ class CubeColoring(Cube):
                                          "w": 0}
 
     def handle_number_of_colors_on_cube(self, current_color, new_color):
+        """
+        This method is in charge of validating and changing the dictionary
+        containing the number of colors on the cube.
+        :param current_color: This is the color reference of current color of
+        the tile.
+        :param new_color: This is the color reference of the color we want to
+        color the tile.
+        :return: This function returns True or false depending if the conditions
+        are met."""
         if current_color != new_color:
+            # if the new color is not "d" we are coloring
             if new_color != "d":
                 if self.number_of_colors_on_cube[new_color] < 9:
                     self.number_of_colors_on_cube[new_color] += 1
@@ -66,6 +89,7 @@ class CubeColoring(Cube):
                     return True
                 else:
                     return False
+            # if the new color is "d" we are removing a color
             else:
                 self.number_of_colors_on_cube[current_color] -= 1
                 return True
@@ -113,7 +137,6 @@ class CubeColoring(Cube):
                 if self.handle_number_of_colors_on_cube(self.state[face][row][column], new_color):
                     self.state[face][row][column] = new_color
 
-
     def remove_color_if_number_of_colors_greater_than_nine(self,
                                                            section_indices):
         color_references = get_dictionary_details(settings.color_details[:6],
@@ -159,3 +182,13 @@ class CubeColoring(Cube):
                 if 'd' in row:
                     return False
         return True
+
+    def reset_state_to_default(self):
+        for face in range(6):
+            for row in range(3):
+                for column in range(3):
+                    self.state[face][row][column] = "d"
+
+    def reset_number_of_colors_on_cube(self):
+        for color_reference in self.number_of_colors_on_cube.keys():
+            self.number_of_colors_on_cube[color_reference] = 0

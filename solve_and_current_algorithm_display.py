@@ -2,10 +2,10 @@ import customtkinter
 from other_functions import get_dictionary_details, settings
 
 
-button_color = get_dictionary_details(settings.color_details, "d", "light_color")
+default_color = get_dictionary_details(settings.color_details, "d", "light_color")
 
 
-class AlgorithmDisplayFrame(customtkinter.CTkFrame):
+class SolveAndCurrentAlgorithmDisplayFrame(customtkinter.CTkFrame):
     algorithm_display_label = None
 
     solve_button = None
@@ -46,7 +46,7 @@ class AlgorithmDisplayFrame(customtkinter.CTkFrame):
             height=32,
             width=580,
             corner_radius=6,
-            fg_color=button_color,
+            fg_color=default_color,
             text="")
         self.algorithm_display_label.grid(row=0, column=2, padx=16, pady=16)
 

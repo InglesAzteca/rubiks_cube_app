@@ -384,10 +384,6 @@ class SolveCube(Cube):
         return color_order
 
     def compare_to_pll_algorithm_state(self, algorithm_state):
-        # needs to be modified to give cube rotations and u turns
-        # also to work with different start colors
-        # try implement with other algorithms
-
         algorithm_color_order = self.calculate_pll_color_order(algorithm_state)
         color_order = self.calculate_pll_color_order(self.state)
         positioning_algorithm = ""
@@ -422,7 +418,6 @@ class SolveCube(Cube):
             color_order = [[(index - 3) % 12 for index in color_indices] for color_indices in color_order]
             for order in color_order:
                 order.sort()
-
 
         return False, ""
 
@@ -469,8 +464,6 @@ class SolveCube(Cube):
             last_algorithm = "U2"
 
         return "", [last_algorithm]
-
-
 
     def update_current_section(self):
         self.cross = self.is_cross_solved()
@@ -589,18 +582,3 @@ class SolveCube(Cube):
             for piece in self.corner_indices["bottom"]:
                 if self.selected_tile in piece:
                     return piece[1][0]
-
-
-
-
-cube_state = [[["y", "y", "y"], ["y", "y", "y"], ["y", "y", "y"]],
-              [["r", "b", "g"], ["r", "r", "r"], ["r", "r", "r"]],
-              [["o", "o", "r"], ["g", "g", "g"], ["g", "g", "g"]],
-              [["g", "r", "o"], ["o", "o", "o"], ["o", "o", "o"]],
-              [["b", "g", "b"], ["b", "b", "b"], ["b", "b", "b"]],
-              [["w", "w", "w"], ["w", "w", "w"], ["w", "w", "w"]]]
-
-# cs = SolveCube(cube_state)
-# print(cs.search_through_pll_algorithms())
-
-
