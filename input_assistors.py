@@ -5,6 +5,7 @@ from settings import settings
 
 
 class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
+    """This class models the input assistive functions of the cube."""
     selected_color_label = None
 
     menu_variable = None
@@ -31,6 +32,8 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
         self.create_checkboxes()
 
     def create_selected_color_label(self):
+        """This method creates the selected color label."""
+
         light_color = get_dictionary_details(settings.color_details, 'd',
                                              'light_color')
         label = customtkinter.CTkLabel(
@@ -45,10 +48,14 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
         self.selected_color_label = label
 
     def update_selected_color(self, color):
+        """Is used to update the color of the selected color label."""
         self.selected_color_label.configure(fg_color=color)
 
     def create_option_menu(self):
-        self.menu_variable = customtkinter.StringVar(value="Start From")  # set initial value
+        """Creates the option drop menu instance."""
+
+        # set initial value
+        self.menu_variable = customtkinter.StringVar(value="Start From")
         self.menu_instance = customtkinter.CTkOptionMenu(
             master=self,
             values=["White", "Yellow", "Green", "Blue", "Orange", "Red"],
@@ -85,6 +92,7 @@ class InputAssistiveFunctionsFrame(customtkinter.CTkFrame):
                 check_box['check_box'].configure(state=tkinter.DISABLED)
 
     def enable_of_disable_start_color_menu(self, normal_disabled):
+        """Enables or disables the start color drop menu."""
         self.menu_instance.configure(state=normal_disabled)
 
     def change_checkbox_states(self, required_states):

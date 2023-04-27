@@ -1,4 +1,5 @@
 class Settings:
+    """A class containing constants and details of my application."""
     def __init__(self):
         self.color_details = [
             {'color_name': 'red', 'color_reference': 'r',

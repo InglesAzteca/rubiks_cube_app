@@ -5,6 +5,7 @@ from settings import settings
 
 
 class ColorPaletteFrame(customtkinter.CTkFrame):
+    """This class models the color palette frame in my application."""
     palette_details = [
         {'name': 'red_button', 'color_reference': 'r', 'button': None,
          'variable': None},
@@ -83,6 +84,12 @@ class ColorPaletteFrame(customtkinter.CTkFrame):
             button.configure(state=normal_disabled, fg_color=fg_color)
 
     def update_palette_variables(self, number_of_colors_on_cube):
+        """
+        Updates the variables on the color palette using the dictionary passed in.
+
+        :param number_of_colors_on_cube: A dictionary containing the number of
+        each color on the cube.
+        """
         variables = get_dictionary_details(self.palette_details[:6], return_value="variable")
         palette_references = get_dictionary_details(self.palette_details[:6], return_value="color_reference")
 
@@ -91,6 +98,7 @@ class ColorPaletteFrame(customtkinter.CTkFrame):
             variable_number = 9 - number_of_colors_on_cube[palette_reference]
             variables[index].set(str(variable_number))
 
+            # disables or enables the buttons
             if variable_number > 0:
                 self.enable_or_disable_palette_buttons(palette_reference, "normal")
             elif variable_number == 0:

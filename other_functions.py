@@ -41,6 +41,7 @@ def create_cube_copy(cube):
 
 
 def create_face_copy(face):
+    """Creates a copy of a face on the cube."""
     return [[face[row][column] for column in range(3)] for row in range(3)]
 
 
@@ -52,6 +53,7 @@ def create_cube_representation(default_value):
 
 
 def create_solved_cube():
+    """Returns a solved cube state."""
     cube = [[["y"]*3]*3, [["r"]*3]*3, [["g"]*3]*3, [["o"]*3]*3, [["b"]*3]*3, [["w"]*3]*3]
     return create_cube_copy(cube)
 
@@ -95,15 +97,29 @@ def get_dictionary_details(detail_dictionaries, reference_value=None,
 
 
 def rename_text_file(folder_path, old_name, new_name):
+    """Renames a file."""
     os.rename(folder_path + old_name, folder_path + new_name)
 
 
 def write_state_to_text_file(cube_reference, file_path, algorithms):
+    """
+    This procedure writes a cube state along with a list of algorithms to a text
+    file in a neat format resembling our visual representation.
+
+    :param cube_reference: 3D list of a cube state.
+    :param file_path: The exact path of the text file.
+    :param algorithms: A list of algorithms - (string).
+    """
+
     file = open(file_path, "w")
+
+    # Writes the algorithms in
     for algorithm in algorithms:
         file.write(f"Algorithm: {algorithm}\n")
     file.write("\n")
-    for stage in range(1, 4):  # 3 stages of displaying
+
+    # 3 stages of displaying
+    for stage in range(1, 4):
         if stage in (1, 3):
             # set face index according to the stage
             if stage == 1:
@@ -127,6 +143,7 @@ def write_state_to_text_file(cube_reference, file_path, algorithms):
 
 
 def read_state_from_text_file(file_path):
+    """Returns a state and algorithm from a file using the file path."""
     cube_representation = [[] for face in range(6)]
     algorithm_identifier = "Algorithm: "
     algorithms = []
@@ -154,6 +171,7 @@ def read_state_from_text_file(file_path):
 
 
 def get_file_list_from_folder(directory):
+    """Returns a list of all the file paths in a folder."""
     file_list = [os.path.join(directory, file_name) for
                  file_name in os.listdir(directory) if
                  os.path.isfile(os.path.join(directory, file_name))]

@@ -3,7 +3,13 @@ from other_functions import get_file_list_from_folder, read_state_from_text_file
 
 
 class SolveCube(Cube):
+    """
+    This class is used to to solve a cube state using the CFOP method. It
+    contains methods and attributes to solve the cube in sections along with
+    tile selection handling. This class requires the algorithms folder to work.
+    """
     def __init__(self, state):
+        """Initialize the parent attributes then the child attributes. """
         super().__init__(state)
 
         self.cross = self.is_cross_solved()
@@ -18,6 +24,7 @@ class SolveCube(Cube):
         self.current_section = "cross"
 
     def solve_cross(self):
+        """Calls the methods required to solve a cross edge."""
         algorithm = self.search_through_cross_algorithms()
         if algorithm != "No algorithms found.":
             self.perform_algorithm(algorithm)
@@ -25,6 +32,14 @@ class SolveCube(Cube):
         return "", algorithm
 
     def determine_cross_piece_details_from_state(self, state, from_file):
+        """
+        Using the state, this method determines a unique set of identifiers to
+        identify the cross state.
+
+        :param state: The state we are calculating the cross identifier for.
+        :param from_file: Is true if the state if from a file.
+        :return: Returns a dictionary that identifies the state.
+        """
         indices = self.edge_indices["bottom"] + \
                   self.edge_indices["middle"] + \
                   self.edge_indices["top"]
@@ -32,24 +47,43 @@ class SolveCube(Cube):
         edge_details = {"selected": [], "location": 0,
                         "cross_color": state[5][1][1], "colors": []}
         if from_file:
+            # states from a file have specific conventions
+            # so we know it will always be the blue and white edge
             edge_details["selected"] = ["b", "w"]
         else:
+            # since we rotate the cube when selected
+            # we know that the bottom from edge is the selected edge
             edge_details["selected"] = [self.state[2][1][1], "w"]
 
         for tile_indices in indices:
             colors = []
             for face, row, column in tile_indices:
                 colors.append(state[face][row][column])
+
+            # I identify an edge by sorting and then comparing
             sorted_colors = colors[:]
             sorted_colors.sort()
             sorted_selected = edge_details["selected"][:]
             sorted_selected.sort()
+
             if sorted_colors == sorted_selected:
+                # we find the location by
+                # referencing it to the location in the edge indices list
                 edge_details["location"] = indices.index(tile_indices) + 1
+                # 'colors' contains the colors of the edge
+                # it can be used to reference the edge orientation
                 edge_details["colors"] = colors
+
         return edge_details
 
     def compare_to_cross_algorithm_state(self, algorithm_state):
+        """
+        Compares the algorithm state to the actual state to identify if the
+        algorithm can be applied to insert a cross edge.
+        :param algorithm_state: A pre-calculated state.
+        :return: Returns true if the edge is in the same location and has the
+        same relative orientation.
+        """
         algorithm_state_cross_piece_details = self.determine_cross_piece_details_from_state(
             algorithm_state, True)
 
@@ -72,6 +106,10 @@ class SolveCube(Cube):
             return False
 
     def search_through_cross_algorithms(self):
+        """
+        Searches through different states and determines an algorithm.
+        :return: the algorithm needed to insert the cross edge.
+        """
         cross_file_list = get_file_list_from_folder("algorithms\\cross")
 
         for index in range(len(cross_file_list)):
@@ -83,19 +121,30 @@ class SolveCube(Cube):
         return "No algorithms found."
 
     def solve_f2l(self):
+        """Calls the methods required to solve an F2L pair."""
+
         positioning_algorithm, algorithms = self.search_through_f2l_algorithms()
         if algorithms != "No algorithm found.":
             self.perform_algorithm(algorithms)
             self.update_current_section()
+
         return positioning_algorithm, algorithms
 
     def determine_f2l_pair_details_from_state(self, state, from_file):
+        """
+        Using the state, this method determines a unique set of identifiers to
+        identify the F2L state.
 
+        :param state: The state we are calculating the cross identifier for.
+        :param from_file: Is true if the state if from a file.
+        :return: A dictionary that uniquely identifies the F2L state.
+        """
         f2l_pair_details = [
                 {"name": "corner", "selected": [], "location": 0,
                  "colors": [], "parity": None},
                 {"name": "edge", "selected": [], "location": 0,
                  "colors": [], "parity": None}]
+
         if from_file:
             f2l_pair_details[0]["selected"] = ["w", "b", "r"]
             f2l_pair_details[1]["selected"] = ["b", "r"]
@@ -155,7 +204,7 @@ class SolveCube(Cube):
             if self.compare_to_f2l_algorithm_state(algorithm_state):
                 return positioning_algorithm, algorithms
 
-        return "No algorithms found."
+        return "", "No algorithms found."
 
     def move_corner_to_required_location(self, corner_location):
         correct_location = [3, 6]
@@ -169,7 +218,7 @@ class SolveCube(Cube):
                 rotation_details = [["U", 1, 2], ["U", 1, 1], ["U", -1, 1]]
                 rotation_index = wrong_top_location.index(corner_location)
 
-                self.rotate_face(*rotation_details[rotation_index])
+                self.perform_move(*rotation_details[rotation_index])
                 algorithm = f"U{rotation_details[rotation_index][2]}".replace("1", "")
             else:
                 rotation_details = ["L' U' L", "R' U2 R U'", "L U2 L'"]
@@ -211,22 +260,23 @@ class SolveCube(Cube):
 
         if corner_location == 6:
             new_edge_location = self.find_edge_location(selected_edge)
-            edge_color = self.state[new_edge_location][0][1]
+            if new_edge_location <= 4:
+                edge_color = self.state[new_edge_location][0][1]
 
-            required_location = self.find_face_index(edge_color)
+                required_location = self.find_face_index(edge_color)
 
-            location_difference = new_edge_location - required_location
+                location_difference = new_edge_location - required_location
 
-            alg3 = ""
-            if location_difference != 0:
-                alg3 += " U"
-                if abs(location_difference) == 2:
-                    alg3 += "2"
-                elif location_difference < 0:
-                    alg3 += "'"
+                alg3 = ""
+                if location_difference != 0:
+                    alg3 += " U"
+                    if abs(location_difference) == 2:
+                        alg3 += "2"
+                    elif location_difference < 0:
+                        alg3 += "'"
 
-            self.perform_algorithm([alg3])
-            algorithm += alg3
+                self.perform_algorithm([alg3])
+                algorithm += alg3
 
         return algorithm
 
@@ -359,7 +409,7 @@ class SolveCube(Cube):
             if same_state:
                 return positioning_algorithm, algorithms
 
-        return "No algorithms found."
+        return "", "No algorithms found."
 
     def solve_pll(self):
         positioning_algorithm, algorithms = self.search_through_pll_algorithms()
@@ -430,7 +480,7 @@ class SolveCube(Cube):
             if is_same:
                 return positioning_algorithm, algorithms
 
-        return "No algorithms found."
+        return "", "No algorithms found."
     
     def solve_section(self):
         self.update_current_section()

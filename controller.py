@@ -148,12 +148,11 @@ class Controller:
 
     def call_enable_solve_button(self):
         """This method enables the solve button."""
-        self.view.algorithm_display.enable_or_disable_solve_button("normal",
-                                                                   "Solve")
+        self.view.solve_and_current_algorithm_display.enable_or_disable_solve_button("normal", "Solve")
 
     def call_disable_solve_button(self):
         """This method disables the solve button."""
-        self.view.algorithm_display.enable_or_disable_solve_button("disabled",
+        self.view.solve_and_current_algorithm_display.enable_or_disable_solve_button("disabled",
                                                                    "Solve")
 
     def call_enable_start_color_menu(self):
@@ -248,6 +247,7 @@ class Controller:
                 self.call_disable_checkboxes()
 
                 self.model.create_solving_cube()
+
                 if self.model.is_selection_needed():
                     enable_list = self.model.get_enable_list()
                     self.view.disable_tiles_for_selection_using_enable_list(
@@ -292,21 +292,27 @@ class Controller:
         It also updates the colors on the cube visualization after the section
         has been solved and disables tiles if a further selection is needed.
         """
-        algorithm = self.model.solve_section()
-        algorithm = self.model.format_suggested_algorithm_for_display(algorithm)
-        self.view.update_algorithm_display(algorithm)
+        try:
+            current_section = self.model.solving_cube.current_section
+            algorithm = self.model.solve_section()
+            algorithm = self.model.format_suggested_algorithm_for_display(algorithm)
+            self.view.update_algorithm_display(f"{current_section.upper()}: {algorithm}")
 
-        state = self.model.get_solving_state()
-        self.view.update_tile_colors(state)
+            state = self.model.get_solving_state()
+            self.view.update_tile_colors(state)
 
-        self.view.enable_all_tiles()
-        if self.model.is_selection_needed():
-            enable_list = self.model.get_enable_list()
-            self.view.disable_tiles_for_selection_using_enable_list(enable_list)
+            self.view.enable_all_tiles()
+            if self.model.is_selection_needed():
+                enable_list = self.model.get_enable_list()
+                self.view.disable_tiles_for_selection_using_enable_list(enable_list)
 
-            self.call_disable_solve_button()
+                self.call_disable_solve_button()
 
-        if self.model.solving_cube.is_cube_solved():
+            if self.model.solving_cube.is_cube_solved():
+                self.call_disable_solve_button()
+        except:
+            self.reset_state_event()
+            self.view.solve_and_current_algorithm_display.change_algorithm("Invalid State.")
             self.call_disable_solve_button()
 
     def reset_state_event(self):

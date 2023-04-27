@@ -70,12 +70,22 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
             face_index += 1
 
     def enable_or_disable_all_tiles(self, normal_disabled):
+        """
+        Enables or disables all the tiles on the cube using the
+        enable_or_disable_tile method.
+
+        :param normal_disabled: Either 'normal' to enable or 'disabled' to
+        disable all the tiles.
+        """
         for face in range(6):
             for row in range(3):
                 for column in range(3):
                     self.enable_or_disable_tile(face, row, column, normal_disabled)
 
     def enable_or_disable_tile(self, face_index, row_index, column_index, normal_disabled):
+        """
+        Uses the indices to reference and disables a specific button of the cube.
+        """
         # gets the button instances from the color palette button's details
         button = self.cube_tile_instances[face_index][row_index][column_index]
         tile_color = button.cget("fg_color")
@@ -91,6 +101,8 @@ class CubeRepresentationFrame(customtkinter.CTkFrame):
         button.configure(state=normal_disabled, fg_color=fg_color)
 
     def disable_tiles_not_in_list(self, enable_list):
+        """Disables all the tiles that are not in the enable list."""
+
         self.enable_or_disable_all_tiles("disabled")
 
         for face, row, column in enable_list:

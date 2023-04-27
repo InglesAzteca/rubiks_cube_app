@@ -3,6 +3,10 @@ from other_functions import get_dictionary_details, settings
 
 
 class AlgorithmDisplayAndStateResetFrame(customtkinter.CTkFrame):
+    """
+    This class models the frame containing the main algorithm display, reset
+    button and the save button in my application.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -16,7 +20,9 @@ class AlgorithmDisplayAndStateResetFrame(customtkinter.CTkFrame):
         self.textbox_label.grid(row=0, column=0, columnspan=2, pady=8)
 
         self.algorithm_text_box = customtkinter.CTkTextbox(master=self.algorithm_frame,
-                                                           width=400, height=584)
+                                                           font=("font", 16),
+                                                           width=400,
+                                                           height=584)
         self.algorithm_text_box.grid(row=1, column=0, columnspan=2, padx=8, pady=8 ,sticky="nsew")
 
         self.reset_state_button = customtkinter.CTkButton(master=self,
@@ -56,5 +62,7 @@ class AlgorithmDisplayAndStateResetFrame(customtkinter.CTkFrame):
         self.algorithm_text_box.delete("0.0", "end")
 
     def add_algorithm_to_display(self, algorithm):
-        self.algorithm_text_box.insert("0.0", algorithm + "\n")
+        text = self.algorithm_text_box.get("0.0", "end")
+        self.algorithm_text_box.delete("0.0", "end")
+        self.algorithm_text_box.insert("0.0", text + algorithm + "\n")
 

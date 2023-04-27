@@ -1,11 +1,14 @@
+import random
+
 import customtkinter
-from other_functions import settings, get_dictionary_details
+from other_functions import settings, get_dictionary_details, create_solved_cube, display_cube
+from cube import CubeDetails
 
 from view import View
 from controller import Controller
 from model import Model
+from solving import SolveCube
 
-from algorithm_display_and_state_reset import StateManipulationAndAlgorithmDisplayFrame
 
 
 class App(customtkinter.CTk):
@@ -132,5 +135,52 @@ class App(customtkinter.CTk):
 
 
 
-app = App()
-app.mainloop()
+
+solved_cube_state = [
+    [['y', 'y', 'y'], ['y', 'y', 'y'], ['y', 'y', 'y']],
+    [['r', 'r', 'r'], ['r', 'r', 'r'], ['r', 'r', 'r']],
+    [['g', 'g', 'g'], ['g', 'g', 'g'], ['g', 'g', 'g']],
+    [['o', 'o', 'o'], ['o', 'o', 'o'], ['o', 'o', 'o']],
+    [['b', 'b', 'b'], ['b', 'b', 'b'], ['b', 'b', 'b']],
+    [['w', 'w', 'w'], ['w', 'w', 'w'], ['w', 'w', 'w']]
+    ]
+
+def random_alg():
+    moves = "ULFRBD"
+    var = ["", "'", "2"]
+    random_algorithm = ""
+
+    for m in range(25):
+        random_algorithm += moves[random.randint(0, len(moves)) - 1] + var[random.randint(0, 2)] + " "
+
+    return random_algorithm
+
+def random_selection(solve):
+    if solve.is_selection_needed():
+        en_list = solve.get_enable_list()
+        solve.selected_tile = en_list[random.randint(0, len(en_list) - 1)]
+
+
+def solve_testing():
+    solved = 0
+    unsolved = 0
+    for s in range(1000):
+        solve = SolveCube(create_solved_cube())
+        solve.perform_algorithm([random_alg()])
+        # display_cube(solve.state)
+
+        while not solve.is_cube_solved():
+            try:
+                random_selection(solve)
+                solve.rotate_cube_due_to_selection()
+                solve.solve_section()
+            except:
+                unsolved += 1
+                break
+        # display_cube(solve.state)
+        if solve.is_cube_solved():
+            solved += 1
+    print(f"Solved: {solved}")
+    print(f"Unsolved: {unsolved}")
+
+solve_testing()

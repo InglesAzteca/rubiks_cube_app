@@ -1,5 +1,5 @@
 from coloring import CubeColoring
-from solve_cube import SolveCube
+from solving import SolveCube
 from other_functions import create_cube_representation
 
 
